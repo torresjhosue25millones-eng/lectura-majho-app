@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-dark-purple text-beige min-h-screen;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-dorado text-dark-purple font-montserrat font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:bg-yellow-400 hover:shadow-lg hover:shadow-dorado/30 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply border border-dorado/40 text-dorado font-montserrat px-6 py-2.5 rounded-full transition-all duration-300 hover:border-dorado hover:bg-dorado/10;
+  }
+
+  .card {
+    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm;
+  }
+
+  .input-field {
+    @apply w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-beige placeholder-beige/40 font-montserrat text-sm transition-all duration-200 focus:outline-none focus:border-dorado/60 focus:bg-white/10;
+  }
+
+  .label {
+    @apply block font-montserrat text-xs text-dorado/80 uppercase tracking-widest mb-2;
+  }
+}
+
+.stars-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star-dot {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--duration, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: var(--opacity, 0.4); }
+  50% { opacity: calc(var(--opacity, 0.4) * 0.3); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #C9A84C 0%, #FFD700 50%, #C9A84C 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1a0a2e; }
+::-webkit-scrollbar-thumb { background: #C9A84C40; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #C9A84C80; }

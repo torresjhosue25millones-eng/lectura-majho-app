@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import readingRoutes from './routes/reading';
 
 dotenv.config();
@@ -14,6 +15,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api', readingRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
+// Serve React frontend in production
+const publicDir = path.join(__dirname, '../../public');
+app.use(express.static(publicDir));
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor MAJHO corriendo en http://localhost:${PORT}`);

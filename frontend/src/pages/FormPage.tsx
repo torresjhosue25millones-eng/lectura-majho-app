@@ -47,10 +47,10 @@ export default function FormPage({ onSubmit, initialData }: Props) {
         {/* Intro */}
         <div className="text-center mb-10">
           <div className="float inline-block text-5xl mb-4">🌟</div>
-          <h2 className="font-cormorant text-4xl md:text-5xl text-beige mb-3">Lectura Astral</h2>
-          <p className="font-cormorant text-xl text-dorado/80 italic mb-4">Descubre la misión de tu hijo/a</p>
+          <h2 className="font-cormorant text-4xl md:text-5xl text-stone mb-3">Lectura Astral</h2>
+          <p className="font-cormorant text-xl text-dorado italic mb-4">Descubre la misión de tu hijo/a</p>
           <div className="w-16 h-px bg-gradient-to-r from-transparent via-dorado to-transparent mx-auto mb-4" />
-          <p className="font-montserrat text-sm text-beige/50 max-w-md mx-auto leading-relaxed">
+          <p className="font-montserrat text-sm text-muted max-w-md mx-auto leading-relaxed">
             Completa este formulario con los datos de nacimiento de tu niño/a.
             Recibirás su reporte astral completo en tu correo electrónico.
           </p>
@@ -73,7 +73,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   value={form.momName}
                   onChange={e => update('momName', e.target.value)}
                 />
-                {errors.momName && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.momName}</p>}
+                {errors.momName && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.momName}</p>}
               </div>
               <div>
                 <label className="label">Tu correo electrónico</label>
@@ -84,7 +84,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   value={form.momEmail}
                   onChange={e => update('momEmail', e.target.value)}
                 />
-                {errors.momEmail && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.momEmail}</p>}
+                {errors.momEmail && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.momEmail}</p>}
               </div>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   value={form.childName}
                   onChange={e => update('childName', e.target.value)}
                 />
-                {errors.childName && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.childName}</p>}
+                {errors.childName && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.childName}</p>}
               </div>
 
               <div>
@@ -118,8 +118,8 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                       onClick={() => update('childSex', opt.value)}
                       className={`flex-1 py-3 rounded-xl font-montserrat text-sm transition-all duration-200 border ${
                         form.childSex === opt.value
-                          ? 'bg-dorado text-dark-purple border-dorado font-semibold'
-                          : 'border-white/20 text-beige/60 hover:border-dorado/40'
+                          ? 'bg-dorado text-white border-dorado font-semibold shadow-sm'
+                          : 'border-stone/20 text-muted hover:border-dorado/50 hover:text-stone bg-white'
                       }`}
                     >
                       {opt.label}
@@ -139,7 +139,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   onChange={e => update('birthDate', e.target.value)}
                   max={new Date().toISOString().split('T')[0]}
                 />
-                {errors.birthDate && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.birthDate}</p>}
+                {errors.birthDate && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthDate}</p>}
               </div>
 
               <div>
@@ -150,8 +150,8 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   value={form.birthTime}
                   onChange={e => update('birthTime', e.target.value)}
                 />
-                {errors.birthTime && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.birthTime}</p>}
-                <p className="font-montserrat text-xs text-beige/30 mt-1">Hora local de nacimiento (ej: 14:30)</p>
+                {errors.birthTime && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthTime}</p>}
+                <p className="font-montserrat text-xs text-muted/70 mt-1">Hora local de nacimiento (ej: 14:30)</p>
               </div>
             </div>
 
@@ -165,7 +165,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   value={form.birthCity}
                   onChange={e => update('birthCity', e.target.value)}
                 />
-                {errors.birthCity && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.birthCity}</p>}
+                {errors.birthCity && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthCity}</p>}
               </div>
 
               <div>
@@ -174,25 +174,26 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   className={`input-field ${errors.birthCountry ? 'border-red-400' : ''}`}
                   value={form.birthCountry}
                   onChange={e => update('birthCountry', e.target.value)}
+                  style={{ color: form.birthCountry ? '#3D3025' : '#7A6A5A' }}
                 >
-                  <option value="">Selecciona un país...</option>
+                  <option value="" style={{ color: '#7A6A5A' }}>Selecciona un país...</option>
                   {COUNTRIES.map(c => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c} style={{ color: '#3D3025' }}>{c}</option>
                   ))}
                 </select>
-                {errors.birthCountry && <p className="text-red-400 text-xs mt-1 font-montserrat">{errors.birthCountry}</p>}
+                {errors.birthCountry && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthCountry}</p>}
               </div>
             </div>
           </div>
 
           {/* Qué esperar */}
-          <div className="border border-dorado/20 rounded-2xl p-5 bg-dorado/5">
-            <p className="font-montserrat text-xs text-dorado/70 uppercase tracking-widest mb-3">Lo que recibirás</p>
+          <div className="border border-dorado/25 rounded-2xl p-5 bg-sand/60">
+            <p className="font-montserrat text-xs text-dorado uppercase tracking-widest mb-3">Lo que recibirás</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {['Carta astral completa', 'Sol, Luna y Ascendente', 'Las 12 casas', 'Tipo de vibración', 'Propósito de vida', 'Consejos MAJHO'].map(item => (
                 <div key={item} className="flex items-center gap-2">
-                  <span className="text-verde text-xs">✓</span>
-                  <span className="font-montserrat text-xs text-beige/60">{item}</span>
+                  <span className="text-sage text-xs">✓</span>
+                  <span className="font-montserrat text-xs text-muted">{item}</span>
                 </div>
               ))}
             </div>

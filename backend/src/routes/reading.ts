@@ -21,13 +21,11 @@ interface ReadingRequest {
 router.post('/reading', async (req: Request, res: Response) => {
   try {
     const data: ReadingRequest = req.body;
-
     const { momName, momEmail, childName, childSex, birthDate, birthTime, birthCity, birthCountry, answers } = data;
 
     if (!momName || !momEmail || !childName || !birthDate || !birthTime || !birthCity || !birthCountry || !answers) {
       return res.status(400).json({ error: 'Todos los campos son requeridos.' });
     }
-
     if (answers.length !== 12) {
       return res.status(400).json({ error: 'Se requieren exactamente 12 respuestas.' });
     }
@@ -36,27 +34,34 @@ router.post('/reading', async (req: Request, res: Response) => {
     const [hourStr, minuteStr] = birthTime.split(':');
     const hour = Number(hourStr) + Number(minuteStr) / 60;
 
-    const chart = calculateChart(year, month, day, hour, birthCity.toLowerCase(), birthCountry.toLowerCase());
-    const childType = determineChildType(answers, year);
+    let chart, childType;
+    try {
+      chart = calculateChart(year, month, day, hour, birthCity.toLowerCase(), birthCountry.toLowerCase());
+      childType = determineChildType(answers, year);
+    } catch (calcErr) {
+      console.error('[LECTURA] Error calculando carta astral:', calcErr);
+      return res.status(500).json({ error: 'Error al calcular la carta astral.' });
+    }
 
-    const pdfBuffer = await generatePDF({
-      momName,
-      childName,
-      childSex,
-      birthDate,
-      birthTime,
-      birthCity,
-      birthCountry,
-      chart,
-      childType,
-    });
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await generatePDF({ momName, childName, childSex, birthDate, birthTime, birthCity, birthCountry, chart, childType });
+    } catch (pdfErr) {
+      console.error('[LECTURA] Error generando PDF:', pdfErr);
+      return res.status(500).json({ error: 'Error al generar el reporte PDF.' });
+    }
 
-    await sendEmail(momEmail, childName, momName, pdfBuffer);
+    try {
+      await sendEmail(momEmail, childName, momName, pdfBuffer);
+    } catch (emailErr) {
+      console.error('[LECTURA] Error enviando email:', emailErr);
+      return res.status(500).json({ error: 'Error al enviar el correo. Verifica las credenciales SMTP en las variables de entorno.' });
+    }
 
     return res.json({ success: true, message: 'Lectura generada y enviada con éxito.' });
   } catch (err) {
-    console.error('Error al generar lectura:', err);
-    return res.status(500).json({ error: 'Error interno al generar la lectura. Por favor intenta nuevamente.' });
+    console.error('[LECTURA] Error inesperado:', err);
+    return res.status(500).json({ error: 'Error interno inesperado al generar la lectura.' });
   }
 });
 

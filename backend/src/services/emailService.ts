@@ -9,42 +9,44 @@ export async function sendEmail(
   momName: string,
   pdfBuffer: Buffer
 ): Promise<void> {
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const fromName = process.env.SMTP_FROM_NAME || 'Método MAJHO';
+  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || '';
+
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: Number(process.env.EMAIL_PORT) || 587,
-    secure: process.env.EMAIL_SECURE === 'true',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port,
+    secure: port === 465,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_FROM || '"Método MAJHO" <noreply@metodomajho.com>',
+    from: `"${fromName}" <${fromEmail}>`,
     to,
     subject: `✨ La Lectura Astral de ${childName} está lista — Método MAJHO`,
     html: `
-      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #F5EFE0; padding: 40px 30px; border-radius: 12px;">
+      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #FDFAF4; padding: 40px 30px; border-radius: 12px; border: 1px solid #F0E8D8;">
         <div style="text-align: center; margin-bottom: 32px;">
-          <h1 style="color: #7B5EA7; font-size: 28px; margin-bottom: 8px;">✦ Método MAJHO ✦</h1>
-          <p style="color: #5C8A6E; font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Lectura Astral Personalizada</p>
+          <h1 style="color: #C9A84C; font-size: 26px; margin-bottom: 8px; letter-spacing: 2px;">✦ MÉTODO MAJHO ✦</h1>
+          <p style="color: #5C8A6E; font-size: 13px; letter-spacing: 3px; text-transform: uppercase;">Lectura Astral Personalizada</p>
         </div>
 
-        <p style="color: #4a3728; font-size: 17px; line-height: 1.7;">Querida <strong>${momName}</strong>,</p>
+        <p style="color: #3D3025; font-size: 17px; line-height: 1.7;">Querida <strong>${momName}</strong>,</p>
 
-        <p style="color: #4a3728; font-size: 16px; line-height: 1.8; margin: 20px 0;">
+        <p style="color: #3D3025; font-size: 16px; line-height: 1.8; margin: 20px 0;">
           Con mucho amor y dedicación, hemos preparado la <strong>Lectura Astral Personalizada</strong> de
-          <strong style="color: #7B5EA7;">${childName}</strong>. Este reporte contiene la sabiduría de los astros
+          <strong style="color: #5C8A6E;">${childName}</strong>. Este reporte contiene la sabiduría de los astros
           traducida en una guía práctica y amorosa para acompañar a tu hijo/a en su misión de vida.
         </p>
 
-        <div style="background: linear-gradient(135deg, #7B5EA7, #C9A84C); padding: 2px; border-radius: 10px; margin: 30px 0;">
-          <div style="background: #F5EFE0; padding: 24px; border-radius: 9px; text-align: center;">
-            <p style="color: #7B5EA7; font-size: 15px; margin: 0;">📎 Encontrarás el reporte completo adjunto a este correo</p>
-          </div>
+        <div style="background: #F0E8D8; border-left: 3px solid #C9A84C; padding: 20px 24px; border-radius: 8px; margin: 28px 0;">
+          <p style="color: #5C8A6E; font-size: 15px; margin: 0; text-align: center;">📎 El reporte completo está adjunto a este correo</p>
         </div>
 
-        <p style="color: #4a3728; font-size: 16px; line-height: 1.8;">
+        <p style="color: #3D3025; font-size: 15px; line-height: 1.9;">
           En la lectura encontrarás:<br>
           ✨ Carta astral completa de ${childName}<br>
           🌙 Sol, Luna y Ascendente con sus significados<br>
@@ -53,14 +55,14 @@ export async function sendEmail(
           🌿 Consejos prácticos del Método MAJHO
         </p>
 
-        <p style="color: #4a3728; font-size: 16px; line-height: 1.8; margin-top: 24px;">
+        <p style="color: #3D3025; font-size: 15px; line-height: 1.8; margin-top: 24px;">
           Recuerda: este niño/a eligió nacer en este momento preciso, en este lugar, en esta familia.
           No es casualidad que seas su mamá. Eres exactamente quien necesita para cumplir su misión. 💛
         </p>
 
-        <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #C9A84C; text-align: center;">
-          <p style="color: #7B5EA7; font-size: 15px; font-style: italic;">Con amor y gratitud,</p>
-          <p style="color: #C9A84C; font-size: 18px; font-weight: bold; margin-top: 4px;">✦ El equipo del Método MAJHO ✦</p>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #C9A84C40; text-align: center;">
+          <p style="color: #7A6A5A; font-size: 14px; font-style: italic;">Con amor y gratitud,</p>
+          <p style="color: #C9A84C; font-size: 17px; font-weight: bold; margin-top: 4px; letter-spacing: 1px;">✦ El equipo del Método MAJHO ✦</p>
         </div>
       </div>
     `,

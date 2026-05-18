@@ -8,7 +8,7 @@
   }
 
   body {
-    @apply bg-dark-purple text-beige min-h-screen;
+    @apply bg-cream text-stone min-h-screen;
     font-family: 'Montserrat', sans-serif;
   }
 
@@ -19,26 +19,27 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-dorado text-dark-purple font-montserrat font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:bg-yellow-400 hover:shadow-lg hover:shadow-dorado/30 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-dorado text-white font-montserrat font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:bg-amber-500 hover:shadow-lg hover:shadow-dorado/25 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply border border-dorado/40 text-dorado font-montserrat px-6 py-2.5 rounded-full transition-all duration-300 hover:border-dorado hover:bg-dorado/10;
+    @apply border border-sage/50 text-sage font-montserrat px-6 py-2.5 rounded-full transition-all duration-300 hover:border-sage hover:bg-sage/10;
   }
 
   .card {
-    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm;
+    @apply bg-beige/60 border border-stone/10 rounded-2xl shadow-sm;
   }
 
   .input-field {
-    @apply w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-beige placeholder-beige/40 font-montserrat text-sm transition-all duration-200 focus:outline-none focus:border-dorado/60 focus:bg-white/10;
+    @apply w-full bg-white border border-stone/20 rounded-xl px-4 py-3 text-stone placeholder-stone/30 font-montserrat text-sm transition-all duration-200 focus:outline-none focus:border-dorado/60 focus:ring-2 focus:ring-dorado/10;
   }
 
   .label {
-    @apply block font-montserrat text-xs text-dorado/80 uppercase tracking-widest mb-2;
+    @apply block font-montserrat text-xs text-dorado/90 uppercase tracking-widest mb-2;
   }
 }
 
+/* Subtle background texture */
 .stars-bg {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -48,15 +49,14 @@
 
 .star-dot {
   position: absolute;
-  background: white;
   border-radius: 50%;
-  animation: twinkle var(--duration, 3s) ease-in-out infinite;
+  animation: twinkle var(--duration, 5s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: var(--opacity, 0.4); }
-  50% { opacity: calc(var(--opacity, 0.4) * 0.3); }
+  0%, 100% { opacity: var(--opacity, 0.04); }
+  50% { opacity: calc(var(--opacity, 0.04) * 0.3); }
 }
 
 @keyframes float {
@@ -74,7 +74,7 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg, #C9A84C 0%, #FFD700 50%, #C9A84C 100%);
+  background: linear-gradient(90deg, #C9A84C 0%, #D4A853 50%, #C9A84C 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -83,6 +83,6 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #1a0a2e; }
-::-webkit-scrollbar-thumb { background: #C9A84C40; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #C9A84C80; }
+::-webkit-scrollbar-track { background: #F5EFE0; }
+::-webkit-scrollbar-thumb { background: #C9A84C50; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #C9A84C90; }

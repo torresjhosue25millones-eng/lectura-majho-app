@@ -1,21 +1,22 @@
 import { useMemo } from 'react';
 
 export default function StarBackground() {
-  const stars = useMemo(() =>
-    Array.from({ length: 80 }, (_, i) => ({
+  const dots = useMemo(() =>
+    Array.from({ length: 50 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 2.5 + 0.5,
-      opacity: Math.random() * 0.5 + 0.1,
-      duration: Math.random() * 4 + 2,
-      delay: Math.random() * 4,
+      size: Math.random() * 4 + 1.5,
+      color: i % 3 === 0 ? '#C9A84C' : i % 3 === 1 ? '#5C8A6E' : '#7A6A5A',
+      opacity: Math.random() * 0.07 + 0.02,
+      duration: Math.random() * 5 + 4,
+      delay: Math.random() * 6,
     })), []
   );
 
   return (
     <div className="stars-bg" aria-hidden="true">
-      {stars.map(s => (
+      {dots.map(s => (
         <div
           key={s.id}
           className="star-dot"
@@ -24,6 +25,7 @@ export default function StarBackground() {
             top: `${s.y}%`,
             width: `${s.size}px`,
             height: `${s.size}px`,
+            backgroundColor: s.color,
             '--opacity': s.opacity,
             '--duration': `${s.duration}s`,
             '--delay': `${s.delay}s`,

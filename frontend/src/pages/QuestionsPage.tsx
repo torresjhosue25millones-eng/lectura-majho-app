@@ -24,12 +24,11 @@ interface Props {
   onBack: () => void;
 }
 
-export default function QuestionsPage({ childName, childSex, onSubmit, onBack }: Props) {
+export default function QuestionsPage({ childName, childSex: _childSex, onSubmit, onBack }: Props) {
   const [answers, setAnswers] = useState<number[]>(Array(12).fill(-1));
   const [currentQ, setCurrentQ] = useState(0);
 
-  const childLabel = childSex === 'F' ? childName : childName;
-  const question = QUESTIONS[currentQ].text.replace(/{name}/g, childLabel);
+  const question = QUESTIONS[currentQ].text.replace(/{name}/g, childName);
   const answered = answers[currentQ] !== -1;
   const allAnswered = answers.every(a => a !== -1);
 
@@ -37,7 +36,6 @@ export default function QuestionsPage({ childName, childSex, onSubmit, onBack }:
     const updated = [...answers];
     updated[currentQ] = value;
     setAnswers(updated);
-
     if (currentQ < 11) {
       setTimeout(() => setCurrentQ(prev => prev + 1), 300);
     }
@@ -54,8 +52,8 @@ export default function QuestionsPage({ childName, childSex, onSubmit, onBack }:
       <div className="w-full max-w-xl">
 
         <div className="text-center mb-8">
-          <p className="font-montserrat text-xs text-dorado/60 uppercase tracking-widest mb-2">12 preguntas sobre {childName}</p>
-          <h2 className="font-cormorant text-3xl text-beige">Perfil de vibración</h2>
+          <p className="font-montserrat text-xs text-dorado/70 uppercase tracking-widest mb-2">12 preguntas sobre {childName}</p>
+          <h2 className="font-cormorant text-3xl text-stone">Perfil de vibración</h2>
         </div>
 
         <div className="mb-8">
@@ -65,8 +63,8 @@ export default function QuestionsPage({ childName, childSex, onSubmit, onBack }:
         {/* Pregunta actual */}
         <div className="card p-7 mb-6">
           <div className="text-center mb-6">
-            <span className="font-montserrat text-xs text-violeta/80 uppercase tracking-widest">Pregunta {currentQ + 1}</span>
-            <p className="font-cormorant text-2xl text-beige mt-3 leading-relaxed">{question}</p>
+            <span className="font-montserrat text-xs text-sage/80 uppercase tracking-widest">Pregunta {currentQ + 1}</span>
+            <p className="font-cormorant text-2xl text-stone mt-3 leading-relaxed">{question}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -76,8 +74,8 @@ export default function QuestionsPage({ childName, childSex, onSubmit, onBack }:
                 onClick={() => selectAnswer(opt.value)}
                 className={`py-4 px-4 rounded-xl font-montserrat text-sm transition-all duration-200 border text-center ${
                   answers[currentQ] === opt.value
-                    ? 'bg-dorado text-dark-purple border-dorado font-semibold shadow-lg shadow-dorado/20'
-                    : 'border-white/15 text-beige/60 hover:border-dorado/40 hover:text-beige hover:bg-white/5'
+                    ? 'bg-dorado text-white border-dorado font-semibold shadow-md shadow-dorado/20'
+                    : 'border-stone/15 text-muted bg-white hover:border-dorado/40 hover:text-stone hover:bg-sand/50'
                 }`}
               >
                 {opt.label}
@@ -102,7 +100,7 @@ export default function QuestionsPage({ childName, childSex, onSubmit, onBack }:
                 onClick={() => setCurrentQ(i)}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
                   i === currentQ ? 'bg-dorado scale-125' :
-                  answers[i] !== -1 ? 'bg-verde' : 'bg-white/20'
+                  answers[i] !== -1 ? 'bg-sage' : 'bg-stone/20'
                 }`}
               />
             ))}
@@ -127,8 +125,7 @@ export default function QuestionsPage({ childName, childSex, onSubmit, onBack }:
           )}
         </div>
 
-        {/* Nota */}
-        <p className="font-montserrat text-xs text-beige/25 text-center mt-6 leading-relaxed">
+        <p className="font-montserrat text-xs text-muted/60 text-center mt-6 leading-relaxed">
           No hay respuestas correctas o incorrectas — responde desde tu corazón basándote en tu observación diaria de {childName}.
         </p>
       </div>

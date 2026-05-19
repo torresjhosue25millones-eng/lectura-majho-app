@@ -35,7 +35,8 @@
   }
 
   .label {
-    @apply block font-montserrat text-xs text-dorado/90 uppercase tracking-widest mb-2;
+    @apply block font-montserrat text-xs uppercase tracking-widest mb-2;
+    color: #A88A35;
   }
 }
 

@@ -11,7 +11,7 @@ export default function Header() {
             <img
               src="/assets/logo-majho.png"
               alt="Método MAJHO"
-              className="h-14 w-auto"
+              style={{ height: 70, width: 'auto' }}
               onError={() => setLogoFailed(true)}
             />
           ) : (

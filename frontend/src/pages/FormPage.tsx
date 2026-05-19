@@ -1,6 +1,19 @@
 import { useState } from 'react';
 import { FormData } from '../types';
 
+function LogoImg() {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+  return (
+    <img
+      src="/assets/logo-majho.png"
+      alt="Academia MAJHO"
+      style={{ height: 140, width: 'auto' }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 interface Props {
   onSubmit: (data: FormData) => void;
   initialData: FormData;
@@ -46,9 +59,11 @@ export default function FormPage({ onSubmit, initialData }: Props) {
 
         {/* Intro */}
         <div className="text-center mb-10">
-          <div className="float inline-block text-5xl mb-4">🌟</div>
+          <div className="flex justify-center mb-4">
+            <LogoImg />
+          </div>
           <h2 className="font-cormorant text-4xl md:text-5xl text-stone mb-3">Lectura Astral</h2>
-          <p className="font-cormorant text-xl text-dorado italic mb-4">Descubre la misión de tu hijo/a</p>
+          <p className="font-cormorant text-xl italic mb-4" style={{ color: '#A88A35' }}>Descubre la misión de tu hijo/a</p>
           <div className="w-16 h-px bg-gradient-to-r from-transparent via-dorado to-transparent mx-auto mb-4" />
           <p className="font-montserrat text-sm text-muted max-w-md mx-auto leading-relaxed">
             Completa este formulario con los datos de nacimiento de tu niño/a.
@@ -60,7 +75,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
 
           {/* Sección Mamá */}
           <div className="card p-6">
-            <h3 className="font-cormorant text-2xl text-dorado mb-5 flex items-center gap-2">
+            <h3 className="font-cormorant text-2xl mb-5 flex items-center gap-2" style={{ color: '#A88A35' }}>
               <span>💛</span> Tus datos
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -91,7 +106,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
 
           {/* Sección Niño */}
           <div className="card p-6">
-            <h3 className="font-cormorant text-2xl text-dorado mb-5 flex items-center gap-2">
+            <h3 className="font-cormorant text-2xl mb-5 flex items-center gap-2" style={{ color: '#A88A35' }}>
               <span>✨</span> Datos del niño/a
             </h3>
 

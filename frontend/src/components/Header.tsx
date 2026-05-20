@@ -3,7 +3,7 @@ export default function Header() {
     <header style={{
       padding: '0.875rem 1.5rem',
       borderBottom: '1.5px solid rgba(122, 158, 126, 0.4)',
-      backgroundColor: '#FAF6F0',
+      backgroundColor: '#F5E6C8',
       backdropFilter: 'blur(8px)',
       position: 'sticky',
       top: 0,

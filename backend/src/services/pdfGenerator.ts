@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import { execSync } from 'child_process';
 import { AstralChart } from './astrology';
 import { ChildTypeResult } from './childType';
 
@@ -600,13 +601,28 @@ function generateHTML(data: ReportData): string {
 </html>`;
 }
 
+function findChromiumPath(): string | undefined {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+  for (const cmd of ['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable']) {
+    try {
+      const p = execSync(`which ${cmd}`).toString().trim();
+      if (p) return p;
+    } catch {}
+  }
+  return undefined;
+}
+
 export async function generatePDF(data: ReportData): Promise<Buffer> {
   const html = generateHTML(data);
+  const executablePath = findChromiumPath();
+  console.log('[PDF] executablePath:', executablePath ?? 'not found, using Puppeteer default');
 
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process'],
+    executablePath,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote'],
   });
 
   try {

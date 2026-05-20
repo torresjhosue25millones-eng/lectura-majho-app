@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node backend/dist/index.js",
+    "startCommand": "PUPPETEER_EXECUTABLE_PATH=$(which chromium) node backend/dist/index.js",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }

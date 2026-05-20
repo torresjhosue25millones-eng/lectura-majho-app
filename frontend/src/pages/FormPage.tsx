@@ -8,7 +8,7 @@ function LogoImg() {
     <img
       src="/assets/logo-majho.png"
       alt="Academia MAJHO"
-      style={{ height: 140, width: 'auto' }}
+      style={{ width: 200, height: 'auto' }}
       onError={() => setFailed(true)}
     />
   );

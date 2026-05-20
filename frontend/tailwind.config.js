@@ -4,15 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: '#FDFAF4',
-        sand: '#F0E8D8',
-        stone: '#3D3025',
+        cream: '#FDFAF6',
+        sand: '#F5EFE6',
+        stone: '#3D2B1F',
         muted: '#7A6A5A',
-        sage: '#5C8A6E',
-        dorado: '#C9A84C',
+        sage: '#7A9E7E',
+        dorado: '#C8A97E',
+        'dorado-dark': '#A88960',
         lavanda: '#EDE8F5',
-        beige: '#F5EFE0',
-        verde: '#5C8A6E',
+        beige: '#F5EFE6',
+        verde: '#7A9E7E',
         violeta: '#7B5EA7',
         rosado: '#F2C4CE',
         'dark-purple': '#1a0a2e',

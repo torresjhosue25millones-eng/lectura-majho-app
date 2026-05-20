@@ -8,13 +8,35 @@ export default function ProgressBar({ current, total }: Props) {
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-2">
-        <span className="font-montserrat text-xs text-muted uppercase tracking-wider">Pregunta {current} de {total}</span>
-        <span className="font-montserrat text-xs text-dorado font-semibold">{pct}%</span>
+        <span style={{
+          fontFamily: 'Montserrat, sans-serif',
+          fontSize: '0.7rem',
+          color: '#7A6A5A',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+        }}>Pregunta {current} de {total}</span>
+        <span style={{
+          fontFamily: 'Montserrat, sans-serif',
+          fontSize: '0.7rem',
+          color: '#C8A97E',
+          fontWeight: 700,
+        }}>{pct}%</span>
       </div>
-      <div className="w-full h-1.5 bg-stone/10 rounded-full overflow-hidden">
+      <div style={{
+        width: '100%',
+        height: '6px',
+        backgroundColor: 'rgba(61, 43, 31, 0.12)',
+        borderRadius: '9999px',
+        overflow: 'hidden',
+      }}>
         <div
-          className="h-full bg-gradient-to-r from-sage to-dorado rounded-full transition-all duration-500"
-          style={{ width: `${pct}%` }}
+          style={{
+            width: `${pct}%`,
+            height: '100%',
+            background: 'linear-gradient(to right, #7A9E7E, #C8A97E)',
+            borderRadius: '9999px',
+            transition: 'width 0.5s ease',
+          }}
         />
       </div>
     </div>

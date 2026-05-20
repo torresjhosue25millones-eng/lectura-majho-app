@@ -13,45 +13,69 @@ const STEPS = [
 
 export default function ProcessingPage({ childName }: Props) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="text-center max-w-md w-full">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
+      <div style={{ textAlign: 'center', maxWidth: '28rem', width: '100%' }}>
 
         {/* Animación central */}
-        <div className="relative mb-10">
-          <div className="w-28 h-28 mx-auto relative">
-            <div className="absolute inset-0 rounded-full border-2 border-dorado/40 animate-spin" style={{ animationDuration: '8s' }} />
-            <div className="absolute inset-3 rounded-full border border-sage/40 animate-spin" style={{ animationDuration: '5s', animationDirection: 'reverse' }} />
-            <div className="absolute inset-6 rounded-full bg-gradient-to-br from-sage/15 to-dorado/20 flex items-center justify-center text-3xl">
+        <div style={{ position: 'relative', marginBottom: '2.5rem' }}>
+          <div style={{ width: '7rem', height: '7rem', margin: '0 auto', position: 'relative' }}>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '9999px',
+              border: '2px solid rgba(200, 169, 126, 0.7)',
+              animation: 'spin 8s linear infinite',
+            }} />
+            <div style={{
+              position: 'absolute', inset: '0.75rem', borderRadius: '9999px',
+              border: '1.5px solid rgba(122, 158, 126, 0.6)',
+              animation: 'spin 5s linear infinite reverse',
+            }} />
+            <div style={{
+              position: 'absolute', inset: '1.5rem', borderRadius: '9999px',
+              background: 'linear-gradient(135deg, rgba(122,158,126,0.35), rgba(200,169,126,0.45))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.5rem',
+              border: '1px solid rgba(200, 169, 126, 0.4)',
+            }}>
               ✦
             </div>
           </div>
         </div>
 
-        <h2 className="font-cormorant text-3xl text-stone mb-2">Leyendo los astros</h2>
-        <p className="font-cormorant text-xl text-dorado/80 italic mb-8">para {childName}...</p>
+        <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#3D2B1F', marginBottom: '0.5rem' }}>
+          Leyendo los astros
+        </h2>
+        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', color: '#C8A97E', fontStyle: 'italic', marginBottom: '2rem' }}>
+          para {childName}...
+        </p>
 
         {/* Steps */}
-        <div className="space-y-3 text-left mb-10">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left', marginBottom: '2.5rem' }}>
           {STEPS.map((step, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 animate-pulse"
-              style={{ animationDelay: `${i * 0.5}s`, animationDuration: '2s' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', animation: 'pulse 2s ease-in-out infinite', animationDelay: `${i * 0.5}s` }}
             >
-              <span className="text-xl">{step.icon}</span>
-              <span className="font-montserrat text-sm text-muted">{step.text}</span>
+              <span style={{ fontSize: '1.25rem' }}>{step.icon}</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#7A6A5A' }}>{step.text}</span>
             </div>
           ))}
         </div>
 
-        <div className="border border-dorado/25 rounded-2xl p-5 bg-sand/60">
-          <p className="font-cormorant text-lg text-stone/70 italic">
+        <div style={{
+          border: '1.5px solid rgba(200, 169, 126, 0.55)',
+          borderRadius: '1rem',
+          padding: '1.25rem',
+          backgroundColor: '#F5EFE6',
+        }}>
+          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#5A4030', fontStyle: 'italic', lineHeight: 1.6 }}>
             "Las estrellas no hablan en prisas —<br />cada lectura es única y merece tiempo."
           </p>
-          <p className="font-montserrat text-xs text-dorado/50 mt-2 uppercase tracking-widest">— Método MAJHO</p>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#C8A97E', marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+            — Método MAJHO
+          </p>
         </div>
 
-        <p className="font-montserrat text-xs text-muted/50 mt-6">
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#7A6A5A', marginTop: '1.5rem', opacity: 0.7 }}>
           Esto puede tomar 30–60 segundos. Por favor no cierres esta página.
         </p>
       </div>

@@ -26,6 +26,26 @@ const COUNTRIES = [
   'Brasil', 'Otro',
 ];
 
+const sectionStyle = {
+  backgroundColor: '#F5EFE6',
+  border: '1px solid rgba(200, 169, 126, 0.5)',
+  borderRadius: '1rem',
+  padding: '1.5rem',
+  boxShadow: '0 2px 10px rgba(200, 169, 126, 0.12)',
+};
+
+const sectionTitleStyle = {
+  fontFamily: '"Cormorant Garamond", Georgia, serif',
+  fontSize: '1.375rem',
+  color: '#7A9E7E',
+  marginBottom: '1.25rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  paddingBottom: '0.75rem',
+  borderBottom: '1px solid rgba(122, 158, 126, 0.25)',
+};
+
 export default function FormPage({ onSubmit, initialData }: Props) {
   const [form, setForm] = useState<FormData>(initialData);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -54,88 +74,101 @@ export default function FormPage({ onSubmit, initialData }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-2xl">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
+      <div style={{ width: '100%', maxWidth: '672px' }}>
 
         {/* Intro */}
-        <div className="text-center mb-10">
-          <div className="flex justify-center mb-4">
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
             <LogoImg />
           </div>
-          <h2 className="font-cormorant text-4xl md:text-5xl text-stone mb-3">Lectura Astral</h2>
-          <p className="font-cormorant text-xl italic mb-4" style={{ color: '#A88A35' }}>Descubre la misión de tu hijo/a</p>
-          <div className="w-16 h-px bg-gradient-to-r from-transparent via-dorado to-transparent mx-auto mb-4" />
-          <p className="font-montserrat text-sm text-muted max-w-md mx-auto leading-relaxed">
+          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.75rem', color: '#3D2B1F', marginBottom: '0.5rem' }}>
+            Lectura Astral
+          </h2>
+          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', fontStyle: 'italic', color: '#C8A97E', marginBottom: '1rem' }}>
+            Descubre la misión de tu hijo/a
+          </p>
+          <div style={{ width: '4rem', height: '1px', background: 'linear-gradient(to right, transparent, #C8A97E, transparent)', margin: '0 auto 1rem' }} />
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#7A6A5A', maxWidth: '28rem', margin: '0 auto', lineHeight: 1.7 }}>
             Completa este formulario con los datos de nacimiento de tu niño/a.
             Recibirás su reporte astral completo en tu correo electrónico.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Sección Mamá */}
-          <div className="card p-6">
-            <h3 className="font-cormorant text-2xl mb-5 flex items-center gap-2" style={{ color: '#A88A35' }}>
+          <div style={sectionStyle}>
+            <h3 style={sectionTitleStyle}>
               <span>💛</span> Tus datos
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
               <div>
                 <label className="label">Tu nombre</label>
                 <input
                   type="text"
-                  className={`input-field ${errors.momName ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.momName ? ' border-red-400' : ''}`}
                   placeholder="Ej: María García"
                   value={form.momName}
                   onChange={e => update('momName', e.target.value)}
                 />
-                {errors.momName && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.momName}</p>}
+                {errors.momName && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.momName}</p>}
               </div>
               <div>
                 <label className="label">Tu correo electrónico</label>
                 <input
                   type="email"
-                  className={`input-field ${errors.momEmail ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.momEmail ? ' border-red-400' : ''}`}
                   placeholder="tu@correo.com"
                   value={form.momEmail}
                   onChange={e => update('momEmail', e.target.value)}
                 />
-                {errors.momEmail && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.momEmail}</p>}
+                {errors.momEmail && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.momEmail}</p>}
               </div>
             </div>
           </div>
 
           {/* Sección Niño */}
-          <div className="card p-6">
-            <h3 className="font-cormorant text-2xl mb-5 flex items-center gap-2" style={{ color: '#A88A35' }}>
+          <div style={sectionStyle}>
+            <h3 style={sectionTitleStyle}>
               <span>✨</span> Datos del niño/a
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
               <div>
                 <label className="label">Nombre del niño/a</label>
                 <input
                   type="text"
-                  className={`input-field ${errors.childName ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.childName ? ' border-red-400' : ''}`}
                   placeholder="Ej: Lucas"
                   value={form.childName}
                   onChange={e => update('childName', e.target.value)}
                 />
-                {errors.childName && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.childName}</p>}
+                {errors.childName && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.childName}</p>}
               </div>
 
               <div>
                 <label className="label">Sexo</label>
-                <div className="flex gap-3 mt-1">
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
                   {[{ value: 'M', label: '♂ Niño' }, { value: 'F', label: '♀ Niña' }].map(opt => (
                     <button
                       key={opt.value}
                       type="button"
                       onClick={() => update('childSex', opt.value)}
-                      className={`flex-1 py-3 rounded-xl font-montserrat text-sm transition-all duration-200 border ${
-                        form.childSex === opt.value
-                          ? 'bg-dorado text-white border-dorado font-semibold shadow-sm'
-                          : 'border-stone/20 text-muted hover:border-dorado/50 hover:text-stone bg-white'
-                      }`}
+                      style={{
+                        flex: 1,
+                        padding: '0.75rem',
+                        borderRadius: '0.75rem',
+                        fontFamily: 'Montserrat, sans-serif',
+                        fontSize: '0.875rem',
+                        fontWeight: form.childSex === opt.value ? 600 : 400,
+                        border: form.childSex === opt.value ? '2px solid #C8A97E' : '1.5px solid rgba(200, 169, 126, 0.4)',
+                        backgroundColor: form.childSex === opt.value ? '#C8A97E' : '#ffffff',
+                        color: form.childSex === opt.value ? '#3D2B1F' : '#7A6A5A',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: form.childSex === opt.value ? '0 2px 8px rgba(200, 169, 126, 0.3)' : 'none',
+                      }}
                     >
                       {opt.label}
                     </button>
@@ -144,77 +177,86 @@ export default function FormPage({ onSubmit, initialData }: Props) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
               <div>
                 <label className="label">Fecha de nacimiento</label>
                 <input
                   type="date"
-                  className={`input-field ${errors.birthDate ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.birthDate ? ' border-red-400' : ''}`}
                   value={form.birthDate}
                   onChange={e => update('birthDate', e.target.value)}
                   max={new Date().toISOString().split('T')[0]}
                 />
-                {errors.birthDate && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthDate}</p>}
+                {errors.birthDate && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.birthDate}</p>}
               </div>
 
               <div>
                 <label className="label">Hora de nacimiento</label>
                 <input
                   type="time"
-                  className={`input-field ${errors.birthTime ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.birthTime ? ' border-red-400' : ''}`}
                   value={form.birthTime}
                   onChange={e => update('birthTime', e.target.value)}
                 />
-                {errors.birthTime && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthTime}</p>}
-                <p className="font-montserrat text-xs text-muted/70 mt-1">Hora local de nacimiento (ej: 14:30)</p>
+                {errors.birthTime && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.birthTime}</p>}
+                <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A6A5A', marginTop: '0.25rem' }}>
+                  Hora local de nacimiento (ej: 14:30)
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
               <div>
                 <label className="label">Ciudad de nacimiento</label>
                 <input
                   type="text"
-                  className={`input-field ${errors.birthCity ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.birthCity ? ' border-red-400' : ''}`}
                   placeholder="Ej: Bogotá"
                   value={form.birthCity}
                   onChange={e => update('birthCity', e.target.value)}
                 />
-                {errors.birthCity && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthCity}</p>}
+                {errors.birthCity && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.birthCity}</p>}
               </div>
 
               <div>
                 <label className="label">País de nacimiento</label>
                 <select
-                  className={`input-field ${errors.birthCountry ? 'border-red-400' : ''}`}
+                  className={`input-field${errors.birthCountry ? ' border-red-400' : ''}`}
                   value={form.birthCountry}
                   onChange={e => update('birthCountry', e.target.value)}
-                  style={{ color: form.birthCountry ? '#3D3025' : '#7A6A5A' }}
+                  style={{ color: form.birthCountry ? '#3D2B1F' : 'rgba(61,43,31,0.4)' }}
                 >
                   <option value="" style={{ color: '#7A6A5A' }}>Selecciona un país...</option>
                   {COUNTRIES.map(c => (
-                    <option key={c} value={c} style={{ color: '#3D3025' }}>{c}</option>
+                    <option key={c} value={c} style={{ color: '#3D2B1F' }}>{c}</option>
                   ))}
                 </select>
-                {errors.birthCountry && <p className="text-red-500 text-xs mt-1 font-montserrat">{errors.birthCountry}</p>}
+                {errors.birthCountry && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.birthCountry}</p>}
               </div>
             </div>
           </div>
 
           {/* Qué esperar */}
-          <div className="border border-dorado/25 rounded-2xl p-5 bg-sand/60">
-            <p className="font-montserrat text-xs text-dorado uppercase tracking-widest mb-3">Lo que recibirás</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div style={{
+            border: '1.5px solid rgba(122, 158, 126, 0.5)',
+            borderRadius: '1rem',
+            padding: '1.25rem',
+            backgroundColor: 'rgba(122, 158, 126, 0.08)',
+          }}>
+            <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A9E7E', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, marginBottom: '0.75rem' }}>
+              Lo que recibirás
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.5rem' }}>
               {['Carta astral completa', 'Sol, Luna y Ascendente', 'Las 12 casas', 'Tipo de vibración', 'Propósito de vida', 'Consejos MAJHO'].map(item => (
-                <div key={item} className="flex items-center gap-2">
-                  <span className="text-sage text-xs">✓</span>
-                  <span className="font-montserrat text-xs text-muted">{item}</span>
+                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: '#7A9E7E', fontSize: '0.875rem', fontWeight: 700 }}>✓</span>
+                  <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8rem', color: '#3D2B1F' }}>{item}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <button type="submit" className="btn-primary w-full text-base py-4">
+          <button type="submit" className="btn-primary" style={{ width: '100%', fontSize: '1rem', padding: '1rem 2rem' }}>
             Continuar a las preguntas →
           </button>
         </form>

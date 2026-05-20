@@ -48,60 +48,95 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
   const answeredCount = answers.filter(a => a !== -1).length;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-xl">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
+      <div style={{ width: '100%', maxWidth: '560px' }}>
 
-        <div className="text-center mb-8">
-          <p className="font-montserrat text-xs text-dorado/70 uppercase tracking-widest mb-2">12 preguntas sobre {childName}</p>
-          <h2 className="font-cormorant text-3xl text-stone">Perfil de vibración</h2>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#C8A97E', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.5rem', fontWeight: 600 }}>
+            12 preguntas sobre {childName}
+          </p>
+          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#3D2B1F' }}>
+            Perfil de vibración
+          </h2>
         </div>
 
-        <div className="mb-8">
+        <div style={{ marginBottom: '2rem' }}>
           <ProgressBar current={answeredCount} total={12} />
         </div>
 
         {/* Pregunta actual */}
-        <div className="card p-7 mb-6">
-          <div className="text-center mb-6">
-            <span className="font-montserrat text-xs text-sage/80 uppercase tracking-widest">Pregunta {currentQ + 1}</span>
-            <p className="font-cormorant text-2xl text-stone mt-3 leading-relaxed">{question}</p>
+        <div style={{
+          backgroundColor: '#F5EFE6',
+          border: '1px solid rgba(200, 169, 126, 0.5)',
+          borderRadius: '1rem',
+          padding: '1.75rem',
+          marginBottom: '1.5rem',
+          boxShadow: '0 2px 10px rgba(200, 169, 126, 0.12)',
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A9E7E', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>
+              Pregunta {currentQ + 1}
+            </span>
+            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#3D2B1F', marginTop: '0.75rem', lineHeight: 1.5 }}>
+              {question}
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {ANSWER_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => selectAnswer(opt.value)}
-                className={`py-4 px-4 rounded-xl font-montserrat text-sm transition-all duration-200 border text-center ${
-                  answers[currentQ] === opt.value
-                    ? 'bg-dorado text-white border-dorado font-semibold shadow-md shadow-dorado/20'
-                    : 'border-stone/15 text-muted bg-white hover:border-dorado/40 hover:text-stone hover:bg-sand/50'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            {ANSWER_OPTIONS.map(opt => {
+              const isSelected = answers[currentQ] === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => selectAnswer(opt.value)}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    fontFamily: 'Montserrat, sans-serif',
+                    fontSize: '0.875rem',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    border: isSelected ? '2px solid #C8A97E' : '1.5px solid rgba(200, 169, 126, 0.35)',
+                    backgroundColor: isSelected ? '#C8A97E' : '#ffffff',
+                    color: isSelected ? '#3D2B1F' : '#7A6A5A',
+                    fontWeight: isSelected ? 600 : 400,
+                    boxShadow: isSelected ? '0 3px 10px rgba(200, 169, 126, 0.3)' : 'none',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Navegación */}
-        <div className="flex items-center justify-between gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
           <button
             onClick={() => currentQ > 0 ? setCurrentQ(prev => prev - 1) : onBack()}
-            className="btn-secondary text-sm"
+            className="btn-secondary"
+            style={{ fontSize: '0.875rem' }}
           >
             ← {currentQ === 0 ? 'Atrás' : 'Anterior'}
           </button>
 
-          <div className="flex gap-1.5">
+          <div style={{ display: 'flex', gap: '0.375rem' }}>
             {QUESTIONS.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentQ(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  i === currentQ ? 'bg-dorado scale-125' :
-                  answers[i] !== -1 ? 'bg-sage' : 'bg-stone/20'
-                }`}
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '9999px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: i === currentQ ? '#C8A97E' :
+                    answers[i] !== -1 ? '#7A9E7E' : 'rgba(61, 43, 31, 0.18)',
+                  transform: i === currentQ ? 'scale(1.35)' : 'scale(1)',
+                }}
               />
             ))}
           </div>
@@ -110,7 +145,8 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
             <button
               onClick={() => setCurrentQ(prev => Math.min(prev + 1, 11))}
               disabled={!answered}
-              className="btn-secondary text-sm disabled:opacity-30"
+              className="btn-secondary"
+              style={{ fontSize: '0.875rem' }}
             >
               Siguiente →
             </button>
@@ -118,14 +154,15 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
             <button
               onClick={handleSubmit}
               disabled={!allAnswered}
-              className="btn-primary text-sm disabled:opacity-30"
+              className="btn-primary"
+              style={{ fontSize: '0.875rem' }}
             >
               Generar lectura ✦
             </button>
           )}
         </div>
 
-        <p className="font-montserrat text-xs text-muted/60 text-center mt-6 leading-relaxed">
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#7A6A5A', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.6, opacity: 0.75 }}>
           No hay respuestas correctas o incorrectas — responde desde tu corazón basándote en tu observación diaria de {childName}.
         </p>
       </div>

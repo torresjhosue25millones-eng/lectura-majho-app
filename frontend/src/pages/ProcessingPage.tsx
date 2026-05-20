@@ -21,7 +21,7 @@ export default function ProcessingPage({ childName }: Props) {
           <div style={{ width: '7rem', height: '7rem', margin: '0 auto', position: 'relative' }}>
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '9999px',
-              border: '2px solid rgba(200, 169, 126, 0.7)',
+              border: '2px solid rgba(196, 168, 130, 0.9)',
               animation: 'spin 8s linear infinite',
             }} />
             <div style={{
@@ -31,10 +31,10 @@ export default function ProcessingPage({ childName }: Props) {
             }} />
             <div style={{
               position: 'absolute', inset: '1.5rem', borderRadius: '9999px',
-              background: 'linear-gradient(135deg, rgba(122,158,126,0.35), rgba(200,169,126,0.45))',
+              background: 'linear-gradient(135deg, rgba(122,158,126,0.35), rgba(184,147,90,0.55))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '1.5rem',
-              border: '1px solid rgba(200, 169, 126, 0.4)',
+              border: '1px solid rgba(196, 168, 130, 0.8)',
             }}>
               ✦
             </div>
@@ -44,7 +44,7 @@ export default function ProcessingPage({ childName }: Props) {
         <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#3D2B1F', marginBottom: '0.5rem' }}>
           Leyendo los astros
         </h2>
-        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', color: '#C8A97E', fontStyle: 'italic', marginBottom: '2rem' }}>
+        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', color: '#B8935A', fontStyle: 'italic', marginBottom: '2rem' }}>
           para {childName}...
         </p>
 
@@ -62,15 +62,15 @@ export default function ProcessingPage({ childName }: Props) {
         </div>
 
         <div style={{
-          border: '1.5px solid rgba(200, 169, 126, 0.55)',
+          border: '1.5px solid rgba(155, 120, 60, 0.35)',
           borderRadius: '1rem',
           padding: '1.25rem',
-          backgroundColor: '#F5EFE6',
+          backgroundColor: '#C4A882',
         }}>
-          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#5A4030', fontStyle: 'italic', lineHeight: 1.6 }}>
+          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#3D2B1F', fontStyle: 'italic', lineHeight: 1.6 }}>
             "Las estrellas no hablan en prisas —<br />cada lectura es única y merece tiempo."
           </p>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#C8A97E', marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#B8935A', marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
             — Método MAJHO
           </p>
         </div>

@@ -27,11 +27,11 @@ const COUNTRIES = [
 ];
 
 const sectionStyle = {
-  backgroundColor: '#F5EFE6',
-  border: '1px solid rgba(200, 169, 126, 0.5)',
+  backgroundColor: '#C4A882',
+  border: '1px solid rgba(155, 120, 60, 0.35)',
   borderRadius: '1rem',
   padding: '1.5rem',
-  boxShadow: '0 2px 10px rgba(200, 169, 126, 0.12)',
+  boxShadow: '0 2px 10px rgba(155, 120, 60, 0.2)',
 };
 
 const sectionTitleStyle = {
@@ -162,12 +162,12 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                         fontFamily: 'Montserrat, sans-serif',
                         fontSize: '0.875rem',
                         fontWeight: form.childSex === opt.value ? 600 : 400,
-                        border: form.childSex === opt.value ? '2px solid #C8A97E' : '1.5px solid rgba(200, 169, 126, 0.4)',
-                        backgroundColor: form.childSex === opt.value ? '#C8A97E' : '#ffffff',
+                        border: form.childSex === opt.value ? '2px solid #B8935A' : '1.5px solid rgba(255, 255, 255, 0.55)',
+                        backgroundColor: form.childSex === opt.value ? '#B8935A' : '#ffffff',
                         color: form.childSex === opt.value ? '#3D2B1F' : '#7A6A5A',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
-                        boxShadow: form.childSex === opt.value ? '0 2px 8px rgba(200, 169, 126, 0.3)' : 'none',
+                        boxShadow: form.childSex === opt.value ? '0 2px 8px rgba(184, 147, 90, 0.35)' : 'none',
                       }}
                     >
                       {opt.label}
@@ -241,7 +241,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
             border: '1.5px solid rgba(122, 158, 126, 0.5)',
             borderRadius: '1rem',
             padding: '1.25rem',
-            backgroundColor: 'rgba(122, 158, 126, 0.08)',
+            backgroundColor: '#C4A882',
           }}>
             <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A9E7E', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, marginBottom: '0.75rem' }}>
               Lo que recibirás

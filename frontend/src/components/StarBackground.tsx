@@ -7,7 +7,7 @@ export default function StarBackground() {
       x: Math.random() * 100,
       y: Math.random() * 100,
       size: Math.random() * 4 + 1.5,
-      color: i % 3 === 0 ? '#C8A97E' : i % 3 === 1 ? '#7A9E7E' : '#7A6A5A',
+      color: i % 3 === 0 ? '#B8935A' : i % 3 === 1 ? '#7A9E7E' : '#7A6A5A',
       opacity: Math.random() * 0.07 + 0.02,
       duration: Math.random() * 5 + 4,
       delay: Math.random() * 6,

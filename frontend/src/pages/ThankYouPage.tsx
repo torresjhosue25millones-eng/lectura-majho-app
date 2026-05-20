@@ -45,38 +45,38 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
         <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.5rem', color: '#3D2B1F', marginBottom: '0.75rem' }}>
           La lectura de {childName}
         </h2>
-        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#C8A97E', fontStyle: 'italic', marginBottom: '2rem' }}>
+        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#B8935A', fontStyle: 'italic', marginBottom: '2rem' }}>
           está en camino ✦
         </p>
 
-        <div style={{ width: '4rem', height: '1px', background: 'linear-gradient(to right, transparent, #C8A97E, transparent)', margin: '0 auto 2rem' }} />
+        <div style={{ width: '4rem', height: '1px', background: 'linear-gradient(to right, transparent, #B8935A, transparent)', margin: '0 auto 2rem' }} />
 
         {/* Email confirmación */}
         <div style={{
-          backgroundColor: '#F5EFE6',
-          border: '1px solid rgba(200, 169, 126, 0.5)',
+          backgroundColor: '#C4A882',
+          border: '1px solid rgba(155, 120, 60, 0.35)',
           borderRadius: '1rem',
           padding: '1.5rem',
           marginBottom: '2rem',
           textAlign: 'left',
-          boxShadow: '0 2px 10px rgba(200, 169, 126, 0.12)',
+          boxShadow: '0 2px 10px rgba(155, 120, 60, 0.2)',
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
             <div style={{
               width: '3rem', height: '3rem', flexShrink: 0,
-              backgroundColor: 'rgba(122, 158, 126, 0.2)',
+              backgroundColor: 'rgba(122, 158, 126, 0.25)',
               borderRadius: '9999px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '1.375rem',
             }}>💌</div>
             <div>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#7A6A5A', lineHeight: 1.7 }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#3D2B1F', lineHeight: 1.7 }}>
                 El reporte PDF completo de {childName} ha sido enviado a:
               </p>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#C8A97E', fontWeight: 700, marginTop: '0.25rem' }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#3D2B1F', fontWeight: 700, marginTop: '0.25rem' }}>
                 {momEmail}
               </p>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#7A6A5A', marginTop: '0.5rem', opacity: 0.75 }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#3D2B1F', marginTop: '0.5rem', opacity: 0.7 }}>
                 Revisa también tu carpeta de spam si no lo ves en los próximos minutos.
               </p>
             </div>
@@ -94,13 +94,13 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
             { icon: '🌿', text: 'Consejos del Método MAJHO' },
           ].map(item => (
             <div key={item.text} style={{
-              border: '1px solid rgba(200, 169, 126, 0.4)',
+              border: '1px solid #C4A882',
               borderRadius: '0.75rem',
               padding: '0.75rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              backgroundColor: '#ffffff',
+              backgroundColor: '#C4A882',
             }}>
               <span>{item.icon}</span>
               <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.78rem', color: '#3D2B1F' }}>{item.text}</span>
@@ -110,17 +110,17 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
 
         {/* Mensaje final */}
         <div style={{
-          border: '1.5px solid rgba(200, 169, 126, 0.55)',
+          border: '1.5px solid rgba(155, 120, 60, 0.35)',
           borderRadius: '1rem',
           padding: '1.5rem',
-          backgroundColor: '#F5EFE6',
+          backgroundColor: '#C4A882',
           marginBottom: '2rem',
         }}>
-          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#5A4030', fontStyle: 'italic', lineHeight: 1.7 }}>
+          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#3D2B1F', fontStyle: 'italic', lineHeight: 1.7 }}>
             "Recuerda: {childName} eligió nacer en este momento preciso,
             bajo estas estrellas, en esta familia. Te eligió a ti."
           </p>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#C8A97E', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#B8935A', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
             — Método MAJHO
           </p>
         </div>

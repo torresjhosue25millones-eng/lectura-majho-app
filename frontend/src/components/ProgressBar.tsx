@@ -18,7 +18,7 @@ export default function ProgressBar({ current, total }: Props) {
         <span style={{
           fontFamily: 'Montserrat, sans-serif',
           fontSize: '0.7rem',
-          color: '#C8A97E',
+          color: '#B8935A',
           fontWeight: 700,
         }}>{pct}%</span>
       </div>
@@ -33,7 +33,7 @@ export default function ProgressBar({ current, total }: Props) {
           style={{
             width: `${pct}%`,
             height: '100%',
-            background: 'linear-gradient(to right, #7A9E7E, #C8A97E)',
+            background: 'linear-gradient(to right, #7A9E7E, #B8935A)',
             borderRadius: '9999px',
             transition: 'width 0.5s ease',
           }}

@@ -99,7 +99,7 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
                     transition: 'all 0.2s ease',
                     border: isSelected ? '2px solid #B8935A' : '1.5px solid rgba(255, 255, 255, 0.55)',
                     backgroundColor: isSelected ? '#B8935A' : '#ffffff',
-                    color: isSelected ? '#1A0E06' : '#2A1A0E',
+                    color: '#000000',
                     fontWeight: isSelected ? 600 : 400,
                     boxShadow: isSelected ? '0 3px 10px rgba(184, 147, 90, 0.35)' : 'none',
                   }}

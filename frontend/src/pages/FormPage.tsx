@@ -164,7 +164,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                         fontWeight: form.childSex === opt.value ? 600 : 400,
                         border: form.childSex === opt.value ? '2px solid #B8935A' : '1.5px solid rgba(255, 255, 255, 0.55)',
                         backgroundColor: form.childSex === opt.value ? '#B8935A' : '#ffffff',
-                        color: form.childSex === opt.value ? '#3D2B1F' : '#7A6A5A',
+                        color: '#000000',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         boxShadow: form.childSex === opt.value ? '0 2px 8px rgba(184, 147, 90, 0.35)' : 'none',
@@ -224,7 +224,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   className={`input-field${errors.birthCountry ? ' border-red-400' : ''}`}
                   value={form.birthCountry}
                   onChange={e => update('birthCountry', e.target.value)}
-                  style={{ color: form.birthCountry ? '#3D2B1F' : 'rgba(61,43,31,0.4)' }}
+                  style={{ color: form.birthCountry ? '#000000' : 'rgba(0,0,0,0.4)' }}
                 >
                   <option value="" style={{ color: '#000000' }}>Selecciona un país...</option>
                   {COUNTRIES.map(c => (

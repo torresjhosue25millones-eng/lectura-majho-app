@@ -12,14 +12,14 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
         <div style={{ textAlign: 'center', maxWidth: '28rem', width: '100%' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>😔</div>
-          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#3D2B1F', marginBottom: '1rem' }}>
+          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#000000', marginBottom: '1rem' }}>
             Algo salió mal
           </h2>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#7A6A5A', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#000000', marginBottom: '1.5rem', lineHeight: 1.7 }}>
             {errorMessage || 'Ocurrió un error al generar la lectura.'}
           </p>
           <div style={{ border: '1px solid #fca5a5', borderRadius: '0.75rem', padding: '1rem', backgroundColor: '#fef2f2', marginBottom: '2rem' }}>
-            <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#5A4030', lineHeight: 1.7 }}>
+            <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#000000', lineHeight: 1.7 }}>
               Si el error persiste, verifica que las variables de entorno SMTP estén configuradas correctamente en Railway.
             </p>
           </div>
@@ -38,14 +38,14 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
         <div className="float" style={{ display: 'inline-block', fontSize: '3.5rem', marginBottom: '1.5rem' }}>🌟</div>
 
         <div style={{ marginBottom: '0.5rem' }}>
-          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#1A4D28', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 700 }}>
+          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#000000', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 700 }}>
             ¡Listo!
           </span>
         </div>
-        <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.5rem', color: '#3D2B1F', marginBottom: '0.75rem' }}>
+        <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.5rem', color: '#000000', marginBottom: '0.75rem' }}>
           La lectura de {childName}
         </h2>
-        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#5C3010', fontStyle: 'italic', marginBottom: '2rem' }}>
+        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#000000', fontStyle: 'italic', marginBottom: '2rem' }}>
           está en camino ✦
         </p>
 
@@ -70,13 +70,13 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
               fontSize: '1.375rem',
             }}>💌</div>
             <div>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#3D2B1F', lineHeight: 1.7 }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#000000', lineHeight: 1.7 }}>
                 El reporte PDF completo de {childName} ha sido enviado a:
               </p>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#3D2B1F', fontWeight: 700, marginTop: '0.25rem' }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#000000', fontWeight: 700, marginTop: '0.25rem' }}>
                 {momEmail}
               </p>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#2A1A0E', marginTop: '0.5rem' }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#000000', marginTop: '0.5rem' }}>
                 Revisa también tu carpeta de spam si no lo ves en los próximos minutos.
               </p>
             </div>
@@ -103,7 +103,7 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
               backgroundColor: '#C4A882',
             }}>
               <span>{item.icon}</span>
-              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.78rem', color: '#3D2B1F' }}>{item.text}</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.78rem', color: '#000000' }}>{item.text}</span>
             </div>
           ))}
         </div>
@@ -116,11 +116,11 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
           backgroundColor: '#C4A882',
           marginBottom: '2rem',
         }}>
-          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#3D2B1F', fontStyle: 'italic', lineHeight: 1.7 }}>
+          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#000000', fontStyle: 'italic', lineHeight: 1.7 }}>
             "Recuerda: {childName} eligió nacer en este momento preciso,
             bajo estas estrellas, en esta familia. Te eligió a ti."
           </p>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#5C3010', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#000000', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
             — Método MAJHO
           </p>
         </div>

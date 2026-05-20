@@ -37,7 +37,7 @@ const sectionStyle = {
 const sectionTitleStyle = {
   fontFamily: '"Cormorant Garamond", Georgia, serif',
   fontSize: '1.375rem',
-  color: '#1A4D28',
+  color: '#000000',
   marginBottom: '1.25rem',
   display: 'flex',
   alignItems: 'center',
@@ -82,14 +82,14 @@ export default function FormPage({ onSubmit, initialData }: Props) {
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
             <LogoImg />
           </div>
-          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.75rem', color: '#3D2B1F', marginBottom: '0.5rem' }}>
+          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.75rem', color: '#000000', marginBottom: '0.5rem' }}>
             Lectura Astral
           </h2>
-          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', fontStyle: 'italic', color: '#5C3010', marginBottom: '1rem' }}>
+          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', fontStyle: 'italic', color: '#000000', marginBottom: '1rem' }}>
             Descubre la misión de tu hijo/a
           </p>
           <div style={{ width: '4rem', height: '1px', background: 'linear-gradient(to right, transparent, #C8A97E, transparent)', margin: '0 auto 1rem' }} />
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#2A1A0E', maxWidth: '28rem', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#000000', maxWidth: '28rem', margin: '0 auto', lineHeight: 1.7 }}>
             Completa este formulario con los datos de nacimiento de tu niño/a.
             Recibirás su reporte astral completo en tu correo electrónico.
           </p>
@@ -199,7 +199,7 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   onChange={e => update('birthTime', e.target.value)}
                 />
                 {errors.birthTime && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.birthTime}</p>}
-                <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A6A5A', marginTop: '0.25rem' }}>
+                <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#000000', marginTop: '0.25rem' }}>
                   Hora local de nacimiento (ej: 14:30)
                 </p>
               </div>
@@ -226,9 +226,9 @@ export default function FormPage({ onSubmit, initialData }: Props) {
                   onChange={e => update('birthCountry', e.target.value)}
                   style={{ color: form.birthCountry ? '#3D2B1F' : 'rgba(61,43,31,0.4)' }}
                 >
-                  <option value="" style={{ color: '#7A6A5A' }}>Selecciona un país...</option>
+                  <option value="" style={{ color: '#000000' }}>Selecciona un país...</option>
                   {COUNTRIES.map(c => (
-                    <option key={c} value={c} style={{ color: '#3D2B1F' }}>{c}</option>
+                    <option key={c} value={c} style={{ color: '#000000' }}>{c}</option>
                   ))}
                 </select>
                 {errors.birthCountry && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.birthCountry}</p>}
@@ -243,14 +243,14 @@ export default function FormPage({ onSubmit, initialData }: Props) {
             padding: '1.25rem',
             backgroundColor: '#C4A882',
           }}>
-            <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#1A4D28', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, marginBottom: '0.75rem' }}>
+            <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#000000', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, marginBottom: '0.75rem' }}>
               Lo que recibirás
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.5rem' }}>
               {['Carta astral completa', 'Sol, Luna y Ascendente', 'Las 12 casas', 'Tipo de vibración', 'Propósito de vida', 'Consejos MAJHO'].map(item => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: '#1A4D28', fontSize: '0.875rem', fontWeight: 700 }}>✓</span>
-                  <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8rem', color: '#3D2B1F' }}>{item}</span>
+                  <span style={{ color: '#000000', fontSize: '0.875rem', fontWeight: 700 }}>✓</span>
+                  <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8rem', color: '#000000' }}>{item}</span>
                 </div>
               ))}
             </div>

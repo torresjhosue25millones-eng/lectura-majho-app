@@ -1,9 +1,3 @@
-[phases.setup]
-nixPkgs = ["chromium"]
-
-[variables]
-PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
-
 [phases.install]
 cmds = [
   "npm --prefix backend ci",
@@ -14,8 +8,9 @@ cmds = [
 cmds = [
   "npm run build --prefix backend",
   "npm run build --prefix frontend",
-  "cp -r frontend/dist public"
+  "cp -r frontend/dist public",
+  "cd backend && npx playwright install --with-deps chromium"
 ]
 
 [start]
-cmd = "PUPPETEER_EXECUTABLE_PATH=$(which chromium) node backend/dist/index.js"
+cmd = "node backend/dist/index.js"

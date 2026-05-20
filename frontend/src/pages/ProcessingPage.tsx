@@ -44,7 +44,7 @@ export default function ProcessingPage({ childName }: Props) {
         <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#3D2B1F', marginBottom: '0.5rem' }}>
           Leyendo los astros
         </h2>
-        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', color: '#B8935A', fontStyle: 'italic', marginBottom: '2rem' }}>
+        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.25rem', color: '#5C3010', fontStyle: 'italic', marginBottom: '2rem' }}>
           para {childName}...
         </p>
 
@@ -56,7 +56,7 @@ export default function ProcessingPage({ childName }: Props) {
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', animation: 'pulse 2s ease-in-out infinite', animationDelay: `${i * 0.5}s` }}
             >
               <span style={{ fontSize: '1.25rem' }}>{step.icon}</span>
-              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#7A6A5A' }}>{step.text}</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#2A1A0E' }}>{step.text}</span>
             </div>
           ))}
         </div>
@@ -70,12 +70,12 @@ export default function ProcessingPage({ childName }: Props) {
           <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.125rem', color: '#3D2B1F', fontStyle: 'italic', lineHeight: 1.6 }}>
             "Las estrellas no hablan en prisas —<br />cada lectura es única y merece tiempo."
           </p>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#B8935A', marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#5C3010', marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
             — Método MAJHO
           </p>
         </div>
 
-        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#7A6A5A', marginTop: '1.5rem', opacity: 0.7 }}>
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#2A1A0E', marginTop: '1.5rem' }}>
           Esto puede tomar 30–60 segundos. Por favor no cierres esta página.
         </p>
       </div>

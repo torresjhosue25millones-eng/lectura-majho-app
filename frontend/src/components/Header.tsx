@@ -14,7 +14,7 @@ export default function Header() {
         <p style={{
           fontFamily: 'Montserrat, sans-serif',
           fontSize: '0.7rem',
-          color: '#7A9E7E',
+          color: '#1A0E06',
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
           fontWeight: 600,

@@ -9,7 +9,7 @@
 
   body {
     background-color: #E8C98A;
-    color: #3D2B1F;
+    color: #1A0E06;
     min-height: 100vh;
     font-family: 'Montserrat', sans-serif;
   }
@@ -104,7 +104,7 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     margin-bottom: 0.5rem;
-    color: #7A9E7E;
+    color: #1A4D28;
     font-weight: 600;
   }
 }

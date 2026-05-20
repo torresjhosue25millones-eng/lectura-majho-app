@@ -52,7 +52,7 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
       <div style={{ width: '100%', maxWidth: '560px' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#B8935A', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.5rem', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#5C3010', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.5rem', fontWeight: 600 }}>
             12 preguntas sobre {childName}
           </p>
           <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.875rem', color: '#3D2B1F' }}>
@@ -74,7 +74,7 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
           boxShadow: '0 2px 10px rgba(155, 120, 60, 0.2)',
         }}>
           <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A9E7E', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#1A4D28', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>
               Pregunta {currentQ + 1}
             </span>
             <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#3D2B1F', marginTop: '0.75rem', lineHeight: 1.5 }}>
@@ -99,7 +99,7 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
                     transition: 'all 0.2s ease',
                     border: isSelected ? '2px solid #B8935A' : '1.5px solid rgba(255, 255, 255, 0.55)',
                     backgroundColor: isSelected ? '#B8935A' : '#ffffff',
-                    color: isSelected ? '#3D2B1F' : '#7A6A5A',
+                    color: isSelected ? '#1A0E06' : '#2A1A0E',
                     fontWeight: isSelected ? 600 : 400,
                     boxShadow: isSelected ? '0 3px 10px rgba(184, 147, 90, 0.35)' : 'none',
                   }}
@@ -162,7 +162,7 @@ export default function QuestionsPage({ childName, childSex: _childSex, onSubmit
           )}
         </div>
 
-        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#7A6A5A', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.6, opacity: 0.75 }}>
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#2A1A0E', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.6 }}>
           No hay respuestas correctas o incorrectas — responde desde tu corazón basándote en tu observación diaria de {childName}.
         </p>
       </div>

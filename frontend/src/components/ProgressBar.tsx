@@ -11,14 +11,14 @@ export default function ProgressBar({ current, total }: Props) {
         <span style={{
           fontFamily: 'Montserrat, sans-serif',
           fontSize: '0.7rem',
-          color: '#7A6A5A',
+          color: '#2A1A0E',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
         }}>Pregunta {current} de {total}</span>
         <span style={{
           fontFamily: 'Montserrat, sans-serif',
           fontSize: '0.7rem',
-          color: '#B8935A',
+          color: '#5C3010',
           fontWeight: 700,
         }}>{pct}%</span>
       </div>

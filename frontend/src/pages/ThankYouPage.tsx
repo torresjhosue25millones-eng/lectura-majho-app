@@ -38,14 +38,14 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
         <div className="float" style={{ display: 'inline-block', fontSize: '3.5rem', marginBottom: '1.5rem' }}>🌟</div>
 
         <div style={{ marginBottom: '0.5rem' }}>
-          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#7A9E7E', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 700 }}>
+          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.7rem', color: '#1A4D28', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 700 }}>
             ¡Listo!
           </span>
         </div>
         <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.5rem', color: '#3D2B1F', marginBottom: '0.75rem' }}>
           La lectura de {childName}
         </h2>
-        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#B8935A', fontStyle: 'italic', marginBottom: '2rem' }}>
+        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '1.5rem', color: '#5C3010', fontStyle: 'italic', marginBottom: '2rem' }}>
           está en camino ✦
         </p>
 
@@ -76,7 +76,7 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
               <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#3D2B1F', fontWeight: 700, marginTop: '0.25rem' }}>
                 {momEmail}
               </p>
-              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#3D2B1F', marginTop: '0.5rem', opacity: 0.7 }}>
+              <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#2A1A0E', marginTop: '0.5rem' }}>
                 Revisa también tu carpeta de spam si no lo ves en los próximos minutos.
               </p>
             </div>
@@ -120,7 +120,7 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
             "Recuerda: {childName} eligió nacer en este momento preciso,
             bajo estas estrellas, en esta familia. Te eligió a ti."
           </p>
-          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#B8935A', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', color: '#5C3010', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
             — Método MAJHO
           </p>
         </div>

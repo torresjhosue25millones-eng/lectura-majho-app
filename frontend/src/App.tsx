@@ -4,7 +4,6 @@ import StarBackground from './components/StarBackground';
 import Header from './components/Header';
 import FormPage from './pages/FormPage';
 import QuestionsPage from './pages/QuestionsPage';
-import ProcessingPage from './pages/ProcessingPage';
 import ThankYouPage from './pages/ThankYouPage';
 import axios from 'axios';
 
@@ -25,15 +24,14 @@ export default function App() {
   };
 
   const handleQuestionsSubmit = async (answers: number[]) => {
-    setState(prev => ({ ...prev, answers, step: 'processing' }));
     try {
       await axios.post('/api/reading', { ...state.formData, answers });
-      setState(prev => ({ ...prev, step: 'done' }));
+      setState(prev => ({ ...prev, answers, step: 'done' }));
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)
         ? (err.response?.data?.error || 'Error al generar la lectura. Por favor intenta nuevamente.')
         : 'Error de conexión. Verifica tu internet e intenta nuevamente.';
-      setState(prev => ({ ...prev, step: 'error', errorMessage: message }));
+      setState(prev => ({ ...prev, answers, step: 'error', errorMessage: message }));
     }
   };
 
@@ -57,9 +55,6 @@ export default function App() {
               onSubmit={handleQuestionsSubmit}
               onBack={() => setState(prev => ({ ...prev, step: 'form' }))}
             />
-          )}
-          {state.step === 'processing' && (
-            <ProcessingPage childName={state.formData.childName} />
           )}
           {(state.step === 'done' || state.step === 'error') && (
             <ThankYouPage

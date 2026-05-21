@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import readingRoutes from './routes/reading';
+import { startQueueProcessor } from './services/emailQueue';
 
 dotenv.config();
 
@@ -25,4 +26,5 @@ app.get('*', (_req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor MAJHO corriendo en http://localhost:${PORT}`);
+  startQueueProcessor();
 });

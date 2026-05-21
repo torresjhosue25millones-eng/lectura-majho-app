@@ -71,13 +71,13 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
             }}>💌</div>
             <div>
               <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#000000', lineHeight: 1.7 }}>
-                El reporte PDF completo de {childName} ha sido enviado a:
+                En las próximas 48 horas recibirás la lectura de {childName} en:
               </p>
               <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.875rem', color: '#000000', fontWeight: 700, marginTop: '0.25rem' }}>
                 {momEmail}
               </p>
               <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: '#000000', marginTop: '0.5rem' }}>
-                Revisa también tu carpeta de spam si no lo ves en los próximos minutos.
+                Revisa tu carpeta de spam si no la encuentras.
               </p>
             </div>
           </div>
@@ -106,6 +106,19 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
               <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.78rem', color: '#000000' }}>{item.text}</span>
             </div>
           ))}
+        </div>
+
+        {/* Aviso no reembolso */}
+        <div style={{
+          border: '1px solid #D97706',
+          borderRadius: '1rem',
+          padding: '1.25rem 1.5rem',
+          backgroundColor: '#FFFBEB',
+          marginBottom: '2rem',
+        }}>
+          <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8rem', color: '#92400E', lineHeight: 1.7, margin: 0 }}>
+            ⚠️ Una vez que recibas tu lectura por correo, no aplican reembolsos.
+          </p>
         </div>
 
         {/* Mensaje final */}

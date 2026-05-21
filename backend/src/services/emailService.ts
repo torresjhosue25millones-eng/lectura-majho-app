@@ -1,7 +1,9 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+import { Resend } from 'resend';
 
-dotenv.config();
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'majhoholistic@majhogroup.com';
+const FROM_NAME = process.env.RESEND_FROM_NAME || 'Método MAJHO';
 
 export async function sendEmail(
   to: string,
@@ -9,23 +11,9 @@ export async function sendEmail(
   momName: string,
   pdfBuffer: Buffer
 ): Promise<void> {
-  const port = Number(process.env.SMTP_PORT) || 587;
-  const fromName = process.env.SMTP_FROM_NAME || 'Método MAJHO';
-  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || '';
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port,
-    secure: port === 465,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
-  const mailOptions = {
-    from: `"${fromName}" <${fromEmail}>`,
-    to,
+  const { error } = await resend.emails.send({
+    from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    to: [to],
     subject: `✨ La Lectura Astral de ${childName} está lista — Método MAJHO`,
     html: `
       <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #FDFAF4; padding: 40px 30px; border-radius: 12px; border: 1px solid #F0E8D8;">
@@ -60,7 +48,13 @@ export async function sendEmail(
           No es casualidad que seas su mamá. Eres exactamente quien necesita para cumplir su misión. 💛
         </p>
 
-        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #C9A84C40; text-align: center;">
+        <div style="background: #FEF3C7; border: 1px solid #D97706; border-radius: 8px; padding: 16px 20px; margin-top: 28px;">
+          <p style="color: #92400E; font-size: 13px; text-align: center; margin: 0; line-height: 1.6;">
+            ⚠️ Una vez recibida tu lectura, no aplican reembolsos.
+          </p>
+        </div>
+
+        <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid #C9A84C40; text-align: center;">
           <p style="color: #7A6A5A; font-size: 14px; font-style: italic;">Con amor y gratitud,</p>
           <p style="color: #C9A84C; font-size: 17px; font-weight: bold; margin-top: 4px; letter-spacing: 1px;">✦ El equipo del Método MAJHO ✦</p>
         </div>
@@ -69,11 +63,12 @@ export async function sendEmail(
     attachments: [
       {
         filename: `Lectura-Astral-${childName.replace(/\s+/g, '-')}.pdf`,
-        content: pdfBuffer,
-        contentType: 'application/pdf',
+        content: pdfBuffer.toString('base64'),
       },
     ],
-  };
+  });
 
-  await transporter.sendMail(mailOptions);
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
+  }
 }

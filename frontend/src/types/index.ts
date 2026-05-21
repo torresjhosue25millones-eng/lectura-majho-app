@@ -12,7 +12,7 @@ export interface FormData {
 export interface AppState {
   formData: FormData;
   answers: number[];
-  step: 'form' | 'questions' | 'processing' | 'done' | 'error';
+  step: 'form' | 'questions' | 'done' | 'error';
   errorMessage?: string;
 }
 

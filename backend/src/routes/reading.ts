@@ -1,8 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { calculateChart } from '../services/astrology';
 import { determineChildType } from '../services/childType';
-import { generatePDF } from '../services/pdfGenerator';
-import { sendEmail } from '../services/emailService';
+import { enqueueEmail } from '../services/emailQueue';
 
 const router = Router();
 
@@ -43,22 +42,9 @@ router.post('/reading', async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Error al calcular la carta astral.' });
     }
 
-    let pdfBuffer: Buffer;
-    try {
-      pdfBuffer = await generatePDF({ momName, childName, childSex, birthDate, birthTime, birthCity, birthCountry, chart, childType });
-    } catch (pdfErr) {
-      console.error('[LECTURA] Error generando PDF:', pdfErr);
-      return res.status(500).json({ error: 'Error al generar el reporte PDF.' });
-    }
+    enqueueEmail({ email: momEmail, momName, childName, childSex, birthDate, birthTime, birthCity, birthCountry, chart, childType });
 
-    try {
-      await sendEmail(momEmail, childName, momName, pdfBuffer);
-    } catch (emailErr) {
-      console.error('[LECTURA] Error enviando email:', emailErr);
-      return res.status(500).json({ error: 'Error al enviar el correo. Verifica las credenciales SMTP en las variables de entorno.' });
-    }
-
-    return res.json({ success: true, message: 'Lectura generada y enviada con éxito.' });
+    return res.json({ success: true });
   } catch (err) {
     console.error('[LECTURA] Error inesperado:', err);
     return res.status(500).json({ error: 'Error interno inesperado al generar la lectura.' });

@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import { AstralChart } from './astrology';
 import { ChildTypeResult } from './childType';
+import { getPlanetText, PARENTING_GUIDE, AFFIRMATIONS_BY_SUN, AFFIRMATIONS_BY_MOON, COMPATIBILITY_TEXTS } from './contentLibrary';
 
 interface ReportData {
   momName: string;
@@ -556,7 +557,103 @@ function generateHTML(data: ReportData): string {
   </div>
 </div>
 
-<!-- ============ PÁGINA 8: CIERRE ============ -->
+<!-- ============ PÁGINA 8: INTERPRETACIÓN DE PLANETAS ============ -->
+<div class="page" style="background:#F5EFE0;padding:36px 32px;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <p style="font-family:Montserrat,sans-serif;font-size:10px;color:#7B5EA7;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">Mapa Celeste Personal</p>
+    <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;color:#3d2b1f;font-weight:400;">Los Planetas de ${childName}</h2>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#C9A84C,transparent);margin:10px auto;"></div>
+    <p style="font-family:Montserrat,sans-serif;font-size:11px;color:#5C8A6E;line-height:1.6;max-width:480px;margin:0 auto;">Cada planeta en su carta revela una dimensión única de quién es ${childName} y cómo expresa su energía en el mundo.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    ${chart.planets.map(p => {
+      const interpretation = getPlanetText(p.name, p.sign, p.house, childName, adjSuffix);
+      const colors: Record<string,string> = { Sol:'#FFD700', Luna:'#9090B0', Mercurio:'#5C8A6E', Venus:'#C9A84C', Marte:'#E07070', Júpiter:'#FFA500', Saturno:'#8B7355', Urano:'#6495ED', Neptuno:'#7B5EA7', Plutón:'#8B6B9E' };
+      const color = colors[p.name] || '#C9A84C';
+      return `<div style="background:white;border-radius:10px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,0.06);border-top:3px solid ${color};">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:18px;color:${color};">${p.symbol}</span>
+          <div>
+            <div style="font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;color:#3d2b1f;text-transform:uppercase;letter-spacing:1px;">${p.name}</div>
+            <div style="font-family:Montserrat,sans-serif;font-size:9px;color:#7B5EA7;">${SIGN_SYMBOLS[p.sign]} ${p.sign} · Casa ${p.house}</div>
+          </div>
+        </div>
+        <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:12.5px;color:#3d2b1f;line-height:1.65;margin:0;">${interpretation}</p>
+      </div>`;
+    }).join('')}
+  </div>
+</div>
+
+<!-- ============ PÁGINA 9: GUÍA DE CRIANZA ============ -->
+<div class="page" style="background:#F5EFE0;padding:0;overflow:hidden;">
+  <div style="background:linear-gradient(135deg,#3A6B50,#5C8A6E);padding:30px 32px 22px;text-align:center;">
+    <p style="font-family:Montserrat,sans-serif;font-size:10px;color:rgba(245,239,224,0.75);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">Crianza Consciente</p>
+    <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;color:#F5EFE0;font-weight:400;">Guía Personalizada para ${childName}</h2>
+    <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:13px;color:rgba(245,239,224,0.8);font-style:italic;margin-top:6px;">Basada en Sol en ${chart.sunSign} · Luna en ${chart.moonSign}</p>
+  </div>
+  <div style="padding:24px 32px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      ${(PARENTING_GUIDE[chart.sunSign] ? PARENTING_GUIDE[chart.sunSign](childName, adjSuffix) : []).map((tip, i) => `
+        <div style="background:white;border-radius:10px;padding:14px 16px;box-shadow:0 1px 8px rgba(0,0,0,0.06);display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:24px;height:24px;background:linear-gradient(135deg,#3A6B50,#5C8A6E);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:Montserrat,sans-serif;font-size:10px;color:white;font-weight:700;">${i+1}</div>
+          <p style="font-family:Montserrat,sans-serif;font-size:11.5px;color:#3d2b1f;line-height:1.65;margin:0;">${tip}</p>
+        </div>`).join('')}
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(92,138,110,0.12));border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:16px 20px;margin-top:14px;">
+      <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;color:#3d2b1f;line-height:1.7;font-style:italic;text-align:center;margin:0;">"No hay crianza perfecta. Hay crianza consciente, presente y llena de amor. Eso es exactamente lo que estás haciendo."</p>
+      <p style="font-family:Montserrat,sans-serif;font-size:9px;color:#7B5EA7;text-align:right;margin-top:8px;letter-spacing:1px;">— Método MAJHO</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PÁGINA 10: AFIRMACIONES ============ -->
+<div class="page" style="background:linear-gradient(160deg,#0d0520 0%,#1e0a3c 50%,#0d0520 100%);padding:36px 32px;">
+  <div style="text-align:center;margin-bottom:26px;">
+    <p style="font-family:Montserrat,sans-serif;font-size:10px;color:rgba(201,168,76,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">Palabras del Alma</p>
+    <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;color:#F5EFE0;font-weight:400;">Afirmaciones para ${childName}</h2>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#C9A84C,transparent);margin:10px auto;"></div>
+    <p style="font-family:Montserrat,sans-serif;font-size:11px;color:rgba(245,239,224,0.6);line-height:1.6;">Basadas en Sol en ${chart.sunSign} y Luna en ${chart.moonSign}. Léelas con ${childName} cada mañana.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    ${[
+      ...(AFFIRMATIONS_BY_SUN[chart.sunSign] || []),
+      ...(AFFIRMATIONS_BY_MOON[chart.moonSign] || [])
+    ].map((aff, i) => `
+      <div style="background:rgba(245,239,224,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="color:#C9A84C;font-size:14px;flex-shrink:0;margin-top:1px;">✦</span>
+        <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:13.5px;color:#F5EFE0;line-height:1.6;margin:0;font-style:italic;">${aff}</p>
+      </div>`).join('')}
+  </div>
+</div>
+
+<!-- ============ PÁGINA 11: COMPATIBILIDAD CON LOS PADRES ============ -->
+<div class="page" style="background:#F5EFE0;padding:0;overflow:hidden;">
+  <div style="background:linear-gradient(135deg,#1e0a3c,#2d1b4e);padding:30px 32px 22px;text-align:center;">
+    <p style="font-family:Montserrat,sans-serif;font-size:10px;color:rgba(201,168,76,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">Vínculo Sagrado</p>
+    <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;color:#F5EFE0;font-weight:400;">Tu Niñ${adjSuffix} ${chart.sunSign} y Tú</h2>
+    <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:13px;color:rgba(245,239,224,0.75);font-style:italic;margin-top:6px;">Cómo acompañar a ${childName} desde su esencia</p>
+  </div>
+  <div style="padding:26px 32px;">
+    <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:16px;">
+      ${(COMPATIBILITY_TEXTS[chart.sunSign] ? COMPATIBILITY_TEXTS[chart.sunSign](childName, adjSuffix) : '').split('\n\n').map(paragraph => {
+        if (paragraph.startsWith('✦')) {
+          const [title, ...rest] = paragraph.split(': ');
+          return `<div style="margin-bottom:14px;">
+            <p style="font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;color:#C9A84C;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">${title}</p>
+            <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;color:#3d2b1f;line-height:1.7;margin:0;">${rest.join(': ')}</p>
+          </div>`;
+        }
+        return `<p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:#3d2b1f;line-height:1.75;margin-bottom:16px;">${paragraph}</p>`;
+      }).join('')}
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(123,94,167,0.1));border:1px solid rgba(201,168,76,0.25);border-radius:12px;padding:18px 22px;text-align:center;">
+      <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:#3d2b1f;line-height:1.75;font-style:italic;margin:0;">"${childName} te eligió a ti. No a otra madre, no a otra familia. A ti. Confía en ese amor que ya existe entre los dos."</p>
+      <p style="font-family:Montserrat,sans-serif;font-size:9px;color:#7B5EA7;text-align:right;margin-top:10px;letter-spacing:1px;">— Método MAJHO</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PÁGINA 12: CIERRE ============ -->
 <div class="page" style="background:linear-gradient(160deg,#0d0520 0%,#1e0a3c 40%,#2d1b4e 70%,#0d0520 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 35px;text-align:center;">
 
   <div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">

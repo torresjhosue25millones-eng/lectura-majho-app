@@ -52,7 +52,8 @@ export function enqueueEmail(params: {
   chart: AstralChart;
   childType: ChildTypeResult;
 }): void {
-  const delayHours = Number(process.env.SEND_DELAY_HOURS) || 48;
+  const raw = process.env.SEND_DELAY_HOURS;
+  const delayHours = raw !== undefined && raw !== '' ? Number(raw) : 48;
   const scheduledAt = new Date().toISOString();
   const sendAt = new Date(Date.now() + delayHours * 60 * 60 * 1000).toISOString();
 

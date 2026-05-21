@@ -138,9 +138,15 @@ export default function ThankYouPage({ childName, momEmail, success, errorMessag
           </p>
         </div>
 
-        <button onClick={onRetry} className="btn-secondary" style={{ fontSize: '0.875rem' }}>
+        <a
+          href="https://pay.hotmart.com/N105912854V"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary"
+          style={{ fontSize: '0.875rem', display: 'inline-block', textDecoration: 'none' }}
+        >
           Generar otra lectura
-        </button>
+        </a>
       </div>
     </div>
   );

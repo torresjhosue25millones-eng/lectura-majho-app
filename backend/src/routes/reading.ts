@@ -30,12 +30,11 @@ router.post('/reading', async (req: Request, res: Response) => {
     }
 
     const [year, month, day] = birthDate.split('-').map(Number);
-    const [hourStr, minuteStr] = birthTime.split(':');
-    const hour = Number(hourStr) + Number(minuteStr) / 60;
 
     let chart, childType;
     try {
-      chart = calculateChart(year, month, day, hour, birthCity.toLowerCase(), birthCountry.toLowerCase());
+      // calculateChart is now async: handles geocoding + UTC timezone conversion
+      chart = await calculateChart(year, month, day, birthTime, birthCity, birthCountry);
       childType = determineChildType(answers, year);
     } catch (calcErr) {
       console.error('[LECTURA] Error calculando carta astral:', calcErr);

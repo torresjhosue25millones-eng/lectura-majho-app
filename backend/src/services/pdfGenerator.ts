@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import { AstralChart } from './astrology';
 import { ChildTypeResult } from './childType';
+import { ChartInterpretation } from './claudeInterpreter';
 import { getPlanetText, PARENTING_GUIDE, AFFIRMATIONS_BY_SUN, AFFIRMATIONS_BY_MOON, COMPATIBILITY_TEXTS } from './contentLibrary';
 
 interface ReportData {
@@ -13,6 +14,7 @@ interface ReportData {
   birthCountry: string;
   chart: AstralChart;
   childType: ChildTypeResult;
+  interpretation?: ChartInterpretation | null;
 }
 
 const SIGN_SYMBOLS: Record<string, string> = {

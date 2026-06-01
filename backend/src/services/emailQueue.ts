@@ -5,6 +5,7 @@ import { generatePDF } from './pdfGenerator';
 import { sendEmail } from './emailService';
 import { AstralChart } from './astrology';
 import { ChildTypeResult } from './childType';
+import { generateChartInterpretation } from './claudeInterpreter';
 
 const QUEUE_FILE = path.join(process.cwd(), 'pending-emails.json');
 
@@ -81,6 +82,13 @@ async function processPending(): Promise<void> {
 
   for (const entry of due) {
     try {
+      // Generate Claude interpretation (null if no API key → PDF uses static text)
+      const interpretation = await generateChartInterpretation(
+        entry.chart, entry.childName, entry.childSex,
+        entry.childType, entry.birthDate,
+        (entry.chart as any).geocodedCity || entry.birthCity
+      );
+
       const pdfBuffer = await generatePDF({
         momName: entry.momName,
         childName: entry.childName,
@@ -91,6 +99,7 @@ async function processPending(): Promise<void> {
         birthCountry: entry.birthCountry,
         chart: entry.chart,
         childType: entry.childType,
+        interpretation,
       });
 
       await sendEmail(entry.email, entry.childName, entry.momName, pdfBuffer);

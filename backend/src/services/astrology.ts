@@ -1,3 +1,34 @@
+/**
+ * Precision astrological calculations using:
+ * - VSOP87 planetary theory (astronomia package) — sub-arcminute accuracy
+ * - ELP 2000-82 lunar theory — ~1' accuracy
+ * - OpenStreetMap Nominatim for geocoding
+ * - geo-tz + luxon for correct UTC conversion (handles historical DST)
+ *
+ * Previously the app used hand-rolled approximate formulas that had 3 bugs:
+ *   1. No timezone conversion → Ascendant was wrong for most users
+ *   2. 3-term Moon formula → Moon could be off by 5-10° (wrong sign on cusps)
+ *   3. Simplified planet orbits → Venus/Mercury errors of several degrees
+ */
+
+import { find as findTimezone } from 'geo-tz';
+import { DateTime } from 'luxon';
+import { Planet } from 'astronomia/planetposition';
+import * as solar from 'astronomia/solar';
+import * as moonposition from 'astronomia/moonposition';
+import * as julianMod from 'astronomia/julian';
+import * as plutoMod from 'astronomia/pluto';
+import * as vsopEarth   from 'astronomia/data/vsop87Bearth';
+import * as vsopMercury from 'astronomia/data/vsop87Bmercury';
+import * as vsopVenus   from 'astronomia/data/vsop87Bvenus';
+import * as vsopMars    from 'astronomia/data/vsop87Bmars';
+import * as vsopJupiter from 'astronomia/data/vsop87Bjupiter';
+import * as vsopSaturn  from 'astronomia/data/vsop87Bsaturn';
+import * as vsopUranus  from 'astronomia/data/vsop87Buranus';
+import * as vsopNeptune from 'astronomia/data/vsop87Bneptune';
+
+// ─── Public interfaces (kept backward-compatible with existing code) ───────────
+
 export interface PlanetInfo {
   name: string;
   longitude: number;
@@ -19,212 +50,275 @@ export interface AstralChart {
   planets: PlanetInfo[];
   houses: HouseInfo[];
   ascendant: { sign: string; degree: number; longitude: number };
+  // New optional fields (existing queue/PDF code ignores them gracefully)
+  mc?: { sign: string; degree: number; longitude: number };
   sunSign: string;
   moonSign: string;
   ascendantSign: string;
+  geocodedCity?: string;
+  timezone?: string;
 }
 
-const SIGNS = ['Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario', 'Capricornio', 'Acuario', 'Piscis'];
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const SIGNS = ['Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo',
+  'Libra', 'Escorpio', 'Sagitario', 'Capricornio', 'Acuario', 'Piscis'];
+
 const PLANET_SYMBOLS: Record<string, string> = {
   Sol: '☉', Luna: '☽', Mercurio: '☿', Venus: '♀', Marte: '♂',
   Júpiter: '♃', Saturno: '♄', Urano: '♅', Neptuno: '♆', Plutón: '♇',
 };
 
-const CITY_COORDS: Record<string, { lat: number; lon: number }> = {
-  bogota: { lat: 4.711, lon: -74.072 }, medellin: { lat: 6.244, lon: -75.581 },
-  cali: { lat: 3.451, lon: -76.532 }, barranquilla: { lat: 10.968, lon: -74.781 },
-  cartagena: { lat: 10.391, lon: -75.479 }, bucaramanga: { lat: 7.119, lon: -73.122 },
-  'ciudad de mexico': { lat: 19.432, lon: -99.133 }, guadalajara: { lat: 20.659, lon: -103.349 },
-  monterrey: { lat: 25.686, lon: -100.316 }, puebla: { lat: 19.042, lon: -98.206 },
-  'buenos aires': { lat: -34.603, lon: -58.381 }, cordoba: { lat: -31.413, lon: -64.181 },
-  rosario: { lat: -32.957, lon: -60.639 }, mendoza: { lat: -32.889, lon: -68.845 },
-  lima: { lat: -12.046, lon: -77.042 }, arequipa: { lat: -16.408, lon: -71.537 },
-  cusco: { lat: -13.531, lon: -71.967 }, trujillo: { lat: -8.112, lon: -79.028 },
-  santiago: { lat: -33.448, lon: -70.669 }, valparaiso: { lat: -33.046, lon: -71.619 },
-  caracas: { lat: 10.480, lon: -66.903 }, maracaibo: { lat: 10.631, lon: -71.633 },
-  quito: { lat: -0.180, lon: -78.467 }, guayaquil: { lat: -2.196, lon: -79.886 },
-  'la paz': { lat: -16.5, lon: -68.119 }, cochabamba: { lat: -17.389, lon: -66.156 },
-  asuncion: { lat: -25.263, lon: -57.575 }, montevideo: { lat: -34.901, lon: -56.164 },
-  'santo domingo': { lat: 18.486, lon: -69.931 }, 'la habana': { lat: 23.113, lon: -82.366 },
-  panama: { lat: 8.993, lon: -79.519 }, 'ciudad de panama': { lat: 8.993, lon: -79.519 },
-  managua: { lat: 12.136, lon: -86.313 }, tegucigalpa: { lat: 14.072, lon: -87.206 },
-  'san jose': { lat: 9.928, lon: -84.090 }, 'san salvador': { lat: 13.692, lon: -89.218 },
-  guatemala: { lat: 14.641, lon: -90.512 }, 'ciudad de guatemala': { lat: 14.641, lon: -90.512 },
-  madrid: { lat: 40.416, lon: -3.703 }, barcelona: { lat: 41.385, lon: 2.173 },
-  miami: { lat: 25.761, lon: -80.191 }, 'new york': { lat: 40.712, lon: -74.005 },
-  'los angeles': { lat: 34.052, lon: -118.243 }, houston: { lat: 29.760, lon: -95.369 },
+const FALLBACK_CITY: Record<string, { lat: number; lon: number }> = {
+  'bogota': { lat: 4.711, lon: -74.072 }, 'bogotá': { lat: 4.711, lon: -74.072 },
+  'medellin': { lat: 6.244, lon: -75.581 }, 'medellín': { lat: 6.244, lon: -75.581 },
+  'cali': { lat: 3.451, lon: -76.532 }, 'barranquilla': { lat: 10.968, lon: -74.781 },
+  'cartagena': { lat: 10.391, lon: -75.479 }, 'bucaramanga': { lat: 7.119, lon: -73.122 },
+  'ciudad de mexico': { lat: 19.432, lon: -99.133 }, 'ciudad de méxico': { lat: 19.432, lon: -99.133 },
+  'guadalajara': { lat: 20.659, lon: -103.349 }, 'monterrey': { lat: 25.686, lon: -100.316 },
+  'buenos aires': { lat: -34.603, lon: -58.381 }, 'cordoba': { lat: -31.413, lon: -64.181 },
+  'lima': { lat: -12.046, lon: -77.042 }, 'arequipa': { lat: -16.408, lon: -71.537 },
+  'santiago': { lat: -33.448, lon: -70.669 }, 'valparaiso': { lat: -33.046, lon: -71.619 },
+  'caracas': { lat: 10.480, lon: -66.903 }, 'quito': { lat: -0.180, lon: -78.467 },
+  'guayaquil': { lat: -2.196, lon: -79.886 }, 'madrid': { lat: 40.416, lon: -3.703 },
+  'barcelona': { lat: 41.385, lon: 2.173 }, 'miami': { lat: 25.761, lon: -80.191 },
+  'new york': { lat: 40.712, lon: -74.005 }, 'nueva york': { lat: 40.712, lon: -74.005 },
+  'los angeles': { lat: 34.052, lon: -118.243 },
 };
 
-const COUNTRY_CAPITALS: Record<string, { lat: number; lon: number }> = {
-  colombia: { lat: 4.711, lon: -74.072 }, mexico: { lat: 19.432, lon: -99.133 },
-  argentina: { lat: -34.603, lon: -58.381 }, peru: { lat: -12.046, lon: -77.042 },
-  chile: { lat: -33.448, lon: -70.669 }, venezuela: { lat: 10.480, lon: -66.903 },
-  ecuador: { lat: -0.180, lon: -78.467 }, bolivia: { lat: -16.5, lon: -68.119 },
-  paraguay: { lat: -25.263, lon: -57.575 }, uruguay: { lat: -34.901, lon: -56.164 },
-  españa: { lat: 40.416, lon: -3.703 }, spain: { lat: 40.416, lon: -3.703 },
-  'estados unidos': { lat: 38.895, lon: -77.036 }, 'united states': { lat: 38.895, lon: -77.036 },
-  usa: { lat: 38.895, lon: -77.036 }, brasil: { lat: -15.779, lon: -47.929 },
-  brazil: { lat: -15.779, lon: -47.929 }, panama: { lat: 8.993, lon: -79.519 },
-  'costa rica': { lat: 9.928, lon: -84.090 }, guatemala: { lat: 14.641, lon: -90.512 },
-  honduras: { lat: 14.072, lon: -87.206 }, nicaragua: { lat: 12.136, lon: -86.313 },
-  'el salvador': { lat: 13.692, lon: -89.218 }, 'republica dominicana': { lat: 18.486, lon: -69.931 },
-  cuba: { lat: 23.113, lon: -82.366 },
+const FALLBACK_COUNTRY: Record<string, { lat: number; lon: number }> = {
+  'colombia': { lat: 4.711, lon: -74.072 }, 'mexico': { lat: 19.432, lon: -99.133 },
+  'méxico': { lat: 19.432, lon: -99.133 }, 'argentina': { lat: -34.603, lon: -58.381 },
+  'peru': { lat: -12.046, lon: -77.042 }, 'perú': { lat: -12.046, lon: -77.042 },
+  'chile': { lat: -33.448, lon: -70.669 }, 'venezuela': { lat: 10.480, lon: -66.903 },
+  'ecuador': { lat: -0.180, lon: -78.467 }, 'bolivia': { lat: -16.5, lon: -68.119 },
+  'españa': { lat: 40.416, lon: -3.703 }, 'spain': { lat: 40.416, lon: -3.703 },
+  'estados unidos': { lat: 38.895, lon: -77.036 }, 'usa': { lat: 38.895, lon: -77.036 },
+  'brasil': { lat: -15.779, lon: -47.929 }, 'costa rica': { lat: 9.928, lon: -84.090 },
+  'guatemala': { lat: 14.641, lon: -90.512 }, 'panama': { lat: 8.993, lon: -79.519 },
 };
 
-function getCityCoords(city: string, country: string): { lat: number; lon: number } {
-  const normalizedCity = city.toLowerCase().trim();
-  const normalizedCountry = country.toLowerCase().trim();
-  return CITY_COORDS[normalizedCity] || COUNTRY_CAPITALS[normalizedCountry] || { lat: 4.711, lon: -74.072 };
+// ─── Geocoding ────────────────────────────────────────────────────────────────
+
+async function geocodeCity(city: string, country: string): Promise<{ lat: number; lon: number; displayName: string }> {
+  try {
+    const q = encodeURIComponent(`${city}, ${country}`);
+    const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&accept-language=es`;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    const res = await fetch(url, { headers: { 'User-Agent': 'LecturaMajho/1.0' }, signal: ctrl.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const data = await res.json() as Array<{ lat: string; lon: string; display_name: string }>;
+      if (data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lon: parseFloat(data[0].lon),
+          displayName: data[0].display_name.split(',').slice(0, 2).join(', ').trim(),
+        };
+      }
+    }
+  } catch { /* fallback below */ }
+  const cityKey = city.toLowerCase().trim();
+  const countryKey = country.toLowerCase().trim();
+  const coords = FALLBACK_CITY[cityKey] || FALLBACK_COUNTRY[countryKey] || { lat: 4.711, lon: -74.072 };
+  return { ...coords, displayName: `${city}, ${country}` };
 }
 
-function toJulianDay(year: number, month: number, day: number, hour: number): number {
-  const a = Math.floor((14 - month) / 12);
-  const y = year + 4800 - a;
-  const m = month + 12 * a - 3;
-  const jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
-  return jdn + (hour - 12) / 24;
+// ─── Timezone + Julian Day ────────────────────────────────────────────────────
+
+function localToJde(dateStr: string, timeStr: string, lat: number, lon: number): { jde: number; timezone: string } {
+  let timezone = 'UTC';
+  try {
+    const zones = findTimezone(lat, lon);
+    timezone = zones[0] || 'UTC';
+  } catch { /* use UTC */ }
+
+  const localDt = DateTime.fromFormat(`${dateStr} ${timeStr}`, 'yyyy-MM-dd HH:mm', { zone: timezone });
+  const utcDt = localDt.isValid ? localDt.toUTC()
+    : DateTime.fromFormat(`${dateStr} ${timeStr}`, 'yyyy-MM-dd HH:mm', { zone: 'UTC' });
+
+  const dayFraction = utcDt.day + utcDt.hour / 24 + utcDt.minute / 1440 + utcDt.second / 86400;
+  const jde = (julianMod as any).CalendarGregorianToJD(utcDt.year, utcDt.month, dayFraction);
+  return { jde, timezone };
 }
 
-function normalizeDeg(d: number): number {
-  return ((d % 360) + 360) % 360;
+// ─── Math helpers ─────────────────────────────────────────────────────────────
+
+function normDeg(d: number): number { return ((d % 360) + 360) % 360; }
+function r2d(r: number): number { return r * 180 / Math.PI; }
+function d2r(d: number): number { return d * Math.PI / 180; }
+function getSign(lon: number): string { return SIGNS[Math.floor(normDeg(lon) / 30)]; }
+function getDeg(lon: number): number { return normDeg(lon) % 30; }
+
+// ─── Geocentric ecliptic longitude from VSOP87 ───────────────────────────────
+
+function geocentricLon(
+  planetData: any, earthData: any, jde: number
+): { lon: number; retrograde: boolean } {
+  const planet = new Planet(planetData);
+  const earth  = new Planet(earthData);
+
+  function computeXYZ(jdePlanet: number, jdeEarth: number): [number, number, number] {
+    const e = earth.position(jdeEarth);
+    const p = planet.position(jdePlanet);
+    const x = p.range * Math.cos(p.lat) * Math.cos(p.lon) - e.range * Math.cos(e.lat) * Math.cos(e.lon);
+    const y = p.range * Math.cos(p.lat) * Math.sin(p.lon) - e.range * Math.cos(e.lat) * Math.sin(e.lon);
+    const z = p.range * Math.sin(p.lat) - e.range * Math.sin(e.lat);
+    return [x, y, z];
+  }
+
+  // First pass (no light-time correction)
+  const [x0, y0, z0] = computeXYZ(jde, jde);
+  const delta = Math.sqrt(x0 * x0 + y0 * y0 + z0 * z0);
+  const tau = 0.0057755183 * delta; // light-time in days
+
+  // Second pass (with light-time correction)
+  const [x, y] = computeXYZ(jde - tau, jde);
+  const lon = normDeg(r2d(Math.atan2(y, x)));
+
+  // Retrograde: compare current geocentric longitude with yesterday's
+  const [xY, yY] = computeXYZ(jde - 1 - tau, jde - 1);
+  const lonYest = normDeg(r2d(Math.atan2(yY, xY)));
+  let diff = lon - lonYest;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+
+  return { lon, retrograde: diff < 0 };
 }
 
-function getSignFromLon(lon: number): string {
-  return SIGNS[Math.floor(normalizeDeg(lon) / 30)];
+// ─── House cusps + Ascendant + MC ─────────────────────────────────────────────
+
+function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]; asc: number; mc: number } {
+  const T    = (jde - 2451545.0) / 36525;
+  const eps  = d2r(23.4392911 - 0.013004 * T);
+  const gmst = normDeg(280.46061837 + 360.98564736629 * (jde - 2451545.0) + 0.000387933 * T * T);
+  const lst  = normDeg(gmst + lon);
+  const ramcR = d2r(lst);
+
+  // Ascendant
+  const y = Math.cos(ramcR);
+  const x = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(d2r(lat)) * Math.sin(eps));
+  let asc = normDeg(r2d(Math.atan2(y, x)));
+  if (x < 0) asc = normDeg(asc + 180);
+
+  // Midheaven
+  const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
+
+  // House cusps (equal-division from ASC and MC — Placidus approximation)
+  const cusps = new Array(13).fill(0);
+  cusps[1]  = asc;           cusps[4]  = normDeg(mc + 180);
+  cusps[7]  = normDeg(asc + 180); cusps[10] = mc;
+  cusps[11] = normDeg(mc + 30);  cusps[12] = normDeg(mc + 60);
+  cusps[2]  = normDeg(asc + 30); cusps[3]  = normDeg(asc + 60);
+  cusps[5]  = normDeg(mc + 210); cusps[6]  = normDeg(mc + 240);
+  cusps[8]  = normDeg(asc + 210); cusps[9] = normDeg(asc + 240);
+
+  return { cusps, asc, mc };
 }
 
-function getDegInSign(lon: number): number {
-  return normalizeDeg(lon) % 30;
+function getPlanetHouse(planetLon: number, cusps: number[]): number {
+  const lon = normDeg(planetLon);
+  for (let h = 1; h <= 12; h++) {
+    const c1 = normDeg(cusps[h]);
+    const c2 = normDeg(cusps[h === 12 ? 1 : h + 1]);
+    if (c2 > c1) { if (lon >= c1 && lon < c2) return h; }
+    else          { if (lon >= c1 || lon < c2) return h; }
+  }
+  return 1;
 }
 
-function getSunLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(280.460 + 0.9856474 * n);
-  const g = normalizeDeg(357.528 + 0.9856003 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g));
-}
+// ─── Main exported function ───────────────────────────────────────────────────
 
-function getMoonLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(218.316 + 13.176396 * n);
-  const M = normalizeDeg(134.963 + 13.064993 * n) * (Math.PI / 180);
-  const F = normalizeDeg(93.272 + 13.229350 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 6.289 * Math.sin(M) - 1.274 * Math.sin(2 * F - M) + 0.658 * Math.sin(2 * F));
-}
-
-function getMercuryLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(252.251 + 4.09233 * n);
-  const M = normalizeDeg(174.794 + 4.09233 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 23.439 * Math.sin(M) + 2.995 * Math.sin(2 * M));
-}
-
-function getVenusLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(181.979 + 1.60213 * n);
-  const M = normalizeDeg(50.416 + 1.60213 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 0.775 * Math.sin(M) + 0.013 * Math.sin(2 * M));
-}
-
-function getMarsLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(355.433 + 0.52403 * n);
-  const M = normalizeDeg(19.373 + 0.52403 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 10.691 * Math.sin(M) + 0.623 * Math.sin(2 * M));
-}
-
-function getJupiterLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(34.351 + 0.08309 * n);
-  const M = normalizeDeg(20.020 + 0.08309 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 5.555 * Math.sin(M) + 0.168 * Math.sin(2 * M));
-}
-
-function getSaturnLongitude(jd: number): number {
-  const n = jd - 2451545.0;
-  const L = normalizeDeg(50.077 + 0.03346 * n);
-  const M = normalizeDeg(317.020 + 0.03346 * n) * (Math.PI / 180);
-  return normalizeDeg(L + 6.393 * Math.sin(M) + 0.171 * Math.sin(2 * M));
-}
-
-function getUranus(jd: number): number {
-  const n = jd - 2451545.0;
-  return normalizeDeg(314.055 + 0.01177 * n);
-}
-
-function getNeptune(jd: number): number {
-  const n = jd - 2451545.0;
-  return normalizeDeg(304.348 + 0.00599 * n);
-}
-
-function getPluto(jd: number): number {
-  const n = jd - 2451545.0;
-  return normalizeDeg(238.956 + 0.00397 * n);
-}
-
-function getAscendant(jd: number, hour: number, lat: number, lon: number): number {
-  const T = (jd - 2451545.0) / 36525;
-  const GMST = normalizeDeg(280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T);
-  const LST = normalizeDeg(GMST + lon);
-  const RAMC = LST * (Math.PI / 180);
-  const latRad = lat * (Math.PI / 180);
-  const eps = 23.4392911 * (Math.PI / 180);
-  const y = Math.cos(RAMC);
-  const x = -(Math.sin(RAMC) * Math.cos(eps) + Math.tan(latRad) * Math.sin(eps));
-  let asc = Math.atan2(y, x) * (180 / Math.PI);
-  if (x < 0) asc += 180;
-  return normalizeDeg(asc);
-}
-
-function getHouseNumber(planetLon: number, ascLon: number): number {
-  const diff = normalizeDeg(planetLon - ascLon);
-  return Math.floor(diff / 30) + 1;
-}
-
-export function calculateChart(
+/**
+ * Calculate a precise astrological chart.
+ *
+ * Signature: async (year, month, day, time 'HH:MM', city, country)
+ * Returns AstralChart compatible with the existing emailQueue / pdfGenerator.
+ */
+export async function calculateChart(
   year: number, month: number, day: number,
-  hour: number, city: string, country: string
-): AstralChart {
-  const coords = getCityCoords(city, country);
-  const jd = toJulianDay(year, month, day, hour);
+  time: string,    // 'HH:MM' in local time of birth city
+  city: string,
+  country: string
+): Promise<AstralChart> {
 
-  const ascLon = getAscendant(jd, hour, coords.lat, coords.lon);
+  // 1. Real geocoding (Nominatim → fallback hardcoded)
+  const { lat, lon, displayName } = await geocodeCity(city, country);
 
+  // 2. Convert local birth time → Julian Ephemeris Day (UTC)
+  const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const { jde, timezone } = localToJde(dateStr, time, lat, lon);
+  const T = (jde - 2451545.0) / 36525;
+
+  // 3. Sun — apparent geocentric ecliptic longitude (VSOP87 + aberration + nutation)
+  const sunLon = normDeg(r2d((solar as any).apparentLongitude(T)));
+
+  // 4. Moon — geocentric ecliptic longitude (ELP 2000-82)
+  const moonPos = (moonposition as any).position(jde);
+  const moonLon = normDeg(r2d(moonPos.lon));
+
+  // 5. Planets — geocentric via VSOP87 heliocentric conversion
+  const pMercury = geocentricLon(vsopMercury, vsopEarth, jde);
+  const pVenus   = geocentricLon(vsopVenus,   vsopEarth, jde);
+  const pMars    = geocentricLon(vsopMars,    vsopEarth, jde);
+  const pJupiter = geocentricLon(vsopJupiter, vsopEarth, jde);
+  const pSaturn  = geocentricLon(vsopSaturn,  vsopEarth, jde);
+  const pUranus  = geocentricLon(vsopUranus,  vsopEarth, jde);
+  const pNeptune = geocentricLon(vsopNeptune, vsopEarth, jde);
+
+  // 6. Pluto — dedicated module (VSOP87 not reliable for Pluto)
+  let plutonLon = normDeg(238.956 + 0.003968789 * (jde - 2451545.0));
+  try {
+    const ph = (plutoMod as any).heliocentric(jde);
+    if (ph && typeof ph.lon === 'number') plutonLon = normDeg(r2d(ph.lon));
+  } catch { /* use linear fallback */ }
+
+  // 7. Houses + Ascendant + MC
+  const { cusps, asc, mc } = computeHouses(jde, lat, lon);
+
+  // 8. Assemble
   const rawPlanets = [
-    { name: 'Sol', lon: getSunLongitude(jd), symbol: '☉' },
-    { name: 'Luna', lon: getMoonLongitude(jd), symbol: '☽' },
-    { name: 'Mercurio', lon: getMercuryLongitude(jd), symbol: '☿' },
-    { name: 'Venus', lon: getVenusLongitude(jd), symbol: '♀' },
-    { name: 'Marte', lon: getMarsLongitude(jd), symbol: '♂' },
-    { name: 'Júpiter', lon: getJupiterLongitude(jd), symbol: '♃' },
-    { name: 'Saturno', lon: getSaturnLongitude(jd), symbol: '♄' },
-    { name: 'Urano', lon: getUranus(jd), symbol: '♅' },
-    { name: 'Neptuno', lon: getNeptune(jd), symbol: '♆' },
-    { name: 'Plutón', lon: getPluto(jd), symbol: '♇' },
+    { name: 'Sol',      lon: sunLon,       retro: false },
+    { name: 'Luna',     lon: moonLon,      retro: false },
+    { name: 'Mercurio', lon: pMercury.lon, retro: pMercury.retrograde },
+    { name: 'Venus',    lon: pVenus.lon,   retro: pVenus.retrograde },
+    { name: 'Marte',    lon: pMars.lon,    retro: pMars.retrograde },
+    { name: 'Júpiter',  lon: pJupiter.lon, retro: pJupiter.retrograde },
+    { name: 'Saturno',  lon: pSaturn.lon,  retro: pSaturn.retrograde },
+    { name: 'Urano',    lon: pUranus.lon,  retro: pUranus.retrograde },
+    { name: 'Neptuno',  lon: pNeptune.lon, retro: pNeptune.retrograde },
+    { name: 'Plutón',   lon: plutonLon,    retro: false },
   ];
 
   const planets: PlanetInfo[] = rawPlanets.map(p => ({
     name: p.name,
-    longitude: p.lon,
-    sign: getSignFromLon(p.lon),
-    degree: Math.round(getDegInSign(p.lon)),
-    house: getHouseNumber(p.lon, ascLon),
+    longitude: Math.round(p.lon * 100) / 100,
+    sign: getSign(p.lon),
+    degree: Math.round(getDeg(p.lon) * 10) / 10,
+    house: getPlanetHouse(p.lon, cusps),
     symbol: PLANET_SYMBOLS[p.name] || p.name[0],
+    retrograde: p.retro,
   }));
 
   const houses: HouseInfo[] = Array.from({ length: 12 }, (_, i) => {
-    const lon = normalizeDeg(ascLon + i * 30);
-    return { number: i + 1, longitude: lon, sign: getSignFromLon(lon), degree: Math.round(getDegInSign(lon)) };
+    const l = normDeg(cusps[i + 1]);
+    return { number: i + 1, longitude: l, sign: getSign(l), degree: Math.round(getDeg(l) * 10) / 10 };
   });
 
-  const ascInfo = { sign: getSignFromLon(ascLon), degree: Math.round(getDegInSign(ascLon)), longitude: ascLon };
+  const ascInfo = { sign: getSign(asc), degree: Math.round(getDeg(asc) * 10) / 10, longitude: asc };
+  const mcInfo  = { sign: getSign(mc),  degree: Math.round(getDeg(mc) * 10) / 10,  longitude: mc };
 
   return {
     planets,
     houses,
     ascendant: ascInfo,
-    sunSign: planets[0].sign,
-    moonSign: planets[1].sign,
+    mc: mcInfo,
+    sunSign:       planets[0].sign,
+    moonSign:      planets[1].sign,
     ascendantSign: ascInfo.sign,
+    geocodedCity:  displayName,
+    timezone,
   };
 }
+

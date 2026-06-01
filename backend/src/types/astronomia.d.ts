@@ -1,4 +1,11 @@
-// Type declarations for the `astronomia` package (no official @types available)
+// Type declarations for packages without official @types
+
+declare module 'tz-lookup' {
+  function tzlookup(lat: number, lon: number): string;
+  export = tzlookup;
+}
+
+// astronomia sub-module declarations
 
 declare module 'astronomia/solar' {
   export function apparentLongitude(T: number): number;

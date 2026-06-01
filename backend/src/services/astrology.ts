@@ -11,7 +11,7 @@
  *   3. Simplified planet orbits → Venus/Mercury errors of several degrees
  */
 
-import { find as findTimezone } from 'geo-tz';
+import tzlookup from 'tz-lookup';
 import { DateTime } from 'luxon';
 import { Planet } from 'astronomia/planetposition';
 import * as solar from 'astronomia/solar';
@@ -130,8 +130,7 @@ async function geocodeCity(city: string, country: string): Promise<{ lat: number
 function localToJde(dateStr: string, timeStr: string, lat: number, lon: number): { jde: number; timezone: string } {
   let timezone = 'UTC';
   try {
-    const zones = findTimezone(lat, lon);
-    timezone = zones[0] || 'UTC';
+    timezone = tzlookup(lat, lon) || 'UTC';
   } catch { /* use UTC */ }
 
   const localDt = DateTime.fromFormat(`${dateStr} ${timeStr}`, 'yyyy-MM-dd HH:mm', { zone: timezone });

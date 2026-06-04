@@ -1,8 +1,5 @@
-[phases.install]
-cmds = [
-  "npm --prefix backend ci",
-  "npm --prefix frontend ci"
-]
+[phases.setup]
+nixPkgs = ["nodejs_20", "chromium", "nss", "atk", "cups", "dbus", "expat", "libdrm", "mesa", "pango", "xorg.libX11", "xorg.libXext", "xorg.libXfixes", "xorg.libXi", "xorg.libXrender", "xorg.libXtst", "xorg.libxcb"]
 
 [phases.build]
 cmds = [

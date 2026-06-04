@@ -54,7 +54,7 @@ export function enqueueEmail(params: {
   childType: ChildTypeResult;
 }): void {
   const raw = process.env.SEND_DELAY_HOURS;
-  const delayHours = raw !== undefined && raw !== '' ? Number(raw) : 48;
+  const delayHours = raw !== undefined && raw !== '' ? Number(raw) : 0;
   const scheduledAt = new Date().toISOString();
   const sendAt = new Date(Date.now() + delayHours * 60 * 60 * 1000).toISOString();
 

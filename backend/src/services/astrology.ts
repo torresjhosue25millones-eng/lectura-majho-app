@@ -158,9 +158,12 @@ function geocentricLon(
   const planet = new Planet(planetData);
   const earth  = new Planet(earthData);
 
+  // ✅ CORRECCIÓN: usar position2000() en lugar de position()
+  // position() en esta versión de astronomia no devuelve el objeto directamente.
+  // position2000() sí devuelve { lon, lat, range } correctamente.
   function computeXYZ(jdePlanet: number, jdeEarth: number): [number, number, number] {
-    const e = earth.position(jdeEarth);
-    const p = planet.position(jdePlanet);
+    const e = earth.position2000(jdeEarth);
+    const p = planet.position2000(jdePlanet);
     const x = p.range * Math.cos(p.lat) * Math.cos(p.lon) - e.range * Math.cos(e.lat) * Math.cos(e.lon);
     const y = p.range * Math.cos(p.lat) * Math.sin(p.lon) - e.range * Math.cos(e.lat) * Math.sin(e.lon);
     const z = p.range * Math.sin(p.lat) - e.range * Math.sin(e.lat);
@@ -320,4 +323,3 @@ export async function calculateChart(
     timezone,
   };
 }
-

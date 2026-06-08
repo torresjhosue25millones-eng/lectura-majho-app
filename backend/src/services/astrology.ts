@@ -4,11 +4,6 @@
  * - ELP 2000-82 lunar theory — ~1' accuracy
  * - OpenStreetMap Nominatim for geocoding
  * - geo-tz + luxon for correct UTC conversion (handles historical DST)
- *
- * Previously the app used hand-rolled approximate formulas that had 3 bugs:
- *   1. No timezone conversion → Ascendant was wrong for most users
- *   2. 3-term Moon formula → Moon could be off by 5-10° (wrong sign on cusps)
- *   3. Simplified planet orbits → Venus/Mercury errors of several degrees
  */
 
 import tzlookup from 'tz-lookup';
@@ -18,16 +13,18 @@ import * as solar from 'astronomia/solar';
 import * as moonposition from 'astronomia/moonposition';
 import * as julianMod from 'astronomia/julian';
 import * as plutoMod from 'astronomia/pluto';
-import * as vsopEarth   from 'astronomia/data/vsop87Bearth';
-import * as vsopMercury from 'astronomia/data/vsop87Bmercury';
-import * as vsopVenus   from 'astronomia/data/vsop87Bvenus';
-import * as vsopMars    from 'astronomia/data/vsop87Bmars';
-import * as vsopJupiter from 'astronomia/data/vsop87Bjupiter';
-import * as vsopSaturn  from 'astronomia/data/vsop87Bsaturn';
-import * as vsopUranus  from 'astronomia/data/vsop87Buranus';
-import * as vsopNeptune from 'astronomia/data/vsop87Bneptune';
 
-// ─── Public interfaces (kept backward-compatible with existing code) ───────────
+// ✅ CORRECCIÓN: import default (sin "* as") para que los datos VSOP87 lleguen correctamente
+import vsopEarth   from 'astronomia/data/vsop87Bearth';
+import vsopMercury from 'astronomia/data/vsop87Bmercury';
+import vsopVenus   from 'astronomia/data/vsop87Bvenus';
+import vsopMars    from 'astronomia/data/vsop87Bmars';
+import vsopJupiter from 'astronomia/data/vsop87Bjupiter';
+import vsopSaturn  from 'astronomia/data/vsop87Bsaturn';
+import vsopUranus  from 'astronomia/data/vsop87Buranus';
+import vsopNeptune from 'astronomia/data/vsop87Bneptune';
+
+// ─── Public interfaces ────────────────────────────────────────────────────────
 
 export interface PlanetInfo {
   name: string;
@@ -50,7 +47,6 @@ export interface AstralChart {
   planets: PlanetInfo[];
   houses: HouseInfo[];
   ascendant: { sign: string; degree: number; longitude: number };
-  // New optional fields (existing queue/PDF code ignores them gracefully)
   mc?: { sign: string; degree: number; longitude: number };
   sunSign: string;
   moonSign: string;
@@ -155,12 +151,15 @@ function getDeg(lon: number): number { return normDeg(lon) % 30; }
 function geocentricLon(
   planetData: any, earthData: any, jde: number
 ): { lon: number; retrograde: boolean } {
-  const planet = new Planet(planetData);
-  const earth  = new Planet(earthData);
 
-  // ✅ CORRECCIÓN: usar position2000() en lugar de position()
-  // position() en esta versión de astronomia no devuelve el objeto directamente.
-  // position2000() sí devuelve { lon, lat, range } correctamente.
+  // ✅ CORRECCIÓN: extraer el default export si viene envuelto en { default: ... }
+  const pData = planetData?.default ?? planetData;
+  const eData = earthData?.default ?? earthData;
+
+  const planet = new Planet(pData);
+  const earth  = new Planet(eData);
+
+  // ✅ CORRECCIÓN: usar position2000() que sí devuelve { lon, lat, range }
   function computeXYZ(jdePlanet: number, jdeEarth: number): [number, number, number] {
     const e = earth.position2000(jdeEarth);
     const p = planet.position2000(jdePlanet);
@@ -209,12 +208,12 @@ function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]
 
   // House cusps (equal-division from ASC and MC — Placidus approximation)
   const cusps = new Array(13).fill(0);
-  cusps[1]  = asc;           cusps[4]  = normDeg(mc + 180);
+  cusps[1]  = asc;                cusps[4]  = normDeg(mc + 180);
   cusps[7]  = normDeg(asc + 180); cusps[10] = mc;
-  cusps[11] = normDeg(mc + 30);  cusps[12] = normDeg(mc + 60);
-  cusps[2]  = normDeg(asc + 30); cusps[3]  = normDeg(asc + 60);
-  cusps[5]  = normDeg(mc + 210); cusps[6]  = normDeg(mc + 240);
-  cusps[8]  = normDeg(asc + 210); cusps[9] = normDeg(asc + 240);
+  cusps[11] = normDeg(mc + 30);   cusps[12] = normDeg(mc + 60);
+  cusps[2]  = normDeg(asc + 30);  cusps[3]  = normDeg(asc + 60);
+  cusps[5]  = normDeg(mc + 210);  cusps[6]  = normDeg(mc + 240);
+  cusps[8]  = normDeg(asc + 210); cusps[9]  = normDeg(asc + 240);
 
   return { cusps, asc, mc };
 }
@@ -232,35 +231,29 @@ function getPlanetHouse(planetLon: number, cusps: number[]): number {
 
 // ─── Main exported function ───────────────────────────────────────────────────
 
-/**
- * Calculate a precise astrological chart.
- *
- * Signature: async (year, month, day, time 'HH:MM', city, country)
- * Returns AstralChart compatible with the existing emailQueue / pdfGenerator.
- */
 export async function calculateChart(
   year: number, month: number, day: number,
-  time: string,    // 'HH:MM' in local time of birth city
+  time: string,
   city: string,
   country: string
 ): Promise<AstralChart> {
 
-  // 1. Real geocoding (Nominatim → fallback hardcoded)
+  // 1. Geocoding
   const { lat, lon, displayName } = await geocodeCity(city, country);
 
-  // 2. Convert local birth time → Julian Ephemeris Day (UTC)
+  // 2. Julian Ephemeris Day
   const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   const { jde, timezone } = localToJde(dateStr, time, lat, lon);
   const T = (jde - 2451545.0) / 36525;
 
-  // 3. Sun — apparent geocentric ecliptic longitude (VSOP87 + aberration + nutation)
+  // 3. Sol
   const sunLon = normDeg(r2d((solar as any).apparentLongitude(T)));
 
-  // 4. Moon — geocentric ecliptic longitude (ELP 2000-82)
+  // 4. Luna
   const moonPos = (moonposition as any).position(jde);
   const moonLon = normDeg(r2d(moonPos.lon));
 
-  // 5. Planets — geocentric via VSOP87 heliocentric conversion
+  // 5. Planetas VSOP87
   const pMercury = geocentricLon(vsopMercury, vsopEarth, jde);
   const pVenus   = geocentricLon(vsopVenus,   vsopEarth, jde);
   const pMars    = geocentricLon(vsopMars,    vsopEarth, jde);
@@ -269,17 +262,17 @@ export async function calculateChart(
   const pUranus  = geocentricLon(vsopUranus,  vsopEarth, jde);
   const pNeptune = geocentricLon(vsopNeptune, vsopEarth, jde);
 
-  // 6. Pluto — dedicated module (VSOP87 not reliable for Pluto)
+  // 6. Plutón
   let plutonLon = normDeg(238.956 + 0.003968789 * (jde - 2451545.0));
   try {
     const ph = (plutoMod as any).heliocentric(jde);
     if (ph && typeof ph.lon === 'number') plutonLon = normDeg(r2d(ph.lon));
   } catch { /* use linear fallback */ }
 
-  // 7. Houses + Ascendant + MC
+  // 7. Casas + Ascendente + MC
   const { cusps, asc, mc } = computeHouses(jde, lat, lon);
 
-  // 8. Assemble
+  // 8. Ensamblar
   const rawPlanets = [
     { name: 'Sol',      lon: sunLon,       retro: false },
     { name: 'Luna',     lon: moonLon,      retro: false },

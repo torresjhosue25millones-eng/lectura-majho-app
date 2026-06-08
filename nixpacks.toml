@@ -3,6 +3,8 @@ nixPkgs = ["nodejs_20", "chromium", "nss", "atk", "cups", "dbus", "expat", "libd
 
 [phases.build]
 cmds = [
+  "npm install --prefix backend --include=dev",
+  "npm install --prefix frontend --include=dev",
   "npm run build --prefix backend",
   "npm run build --prefix frontend",
   "cp -r frontend/dist public",

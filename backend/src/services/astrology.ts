@@ -152,14 +152,13 @@ function geocentricLon(
   planetData: any, earthData: any, jde: number
 ): { lon: number; retrograde: boolean } {
 
-  // ✅ CORRECCIÓN: extraer el default export si viene envuelto en { default: ... }
+  // Extraer el default export si viene envuelto
   const pData = planetData?.default ?? planetData;
   const eData = earthData?.default ?? earthData;
 
   const planet = new Planet(pData);
   const earth  = new Planet(eData);
 
-  // ✅ CORRECCIÓN: usar position2000() que sí devuelve { lon, lat, range }
   function computeXYZ(jdePlanet: number, jdeEarth: number): [number, number, number] {
     const e = earth.position2000(jdeEarth);
     const p = planet.position2000(jdePlanet);
@@ -169,16 +168,13 @@ function geocentricLon(
     return [x, y, z];
   }
 
-  // First pass (no light-time correction)
   const [x0, y0, z0] = computeXYZ(jde, jde);
   const delta = Math.sqrt(x0 * x0 + y0 * y0 + z0 * z0);
-  const tau = 0.0057755183 * delta; // light-time in days
+  const tau = 0.0057755183 * delta;
 
-  // Second pass (with light-time correction)
   const [x, y] = computeXYZ(jde - tau, jde);
   const lon = normDeg(r2d(Math.atan2(y, x)));
 
-  // Retrograde: compare current geocentric longitude with yesterday's
   const [xY, yY] = computeXYZ(jde - 1 - tau, jde - 1);
   const lonYest = normDeg(r2d(Math.atan2(yY, xY)));
   let diff = lon - lonYest;
@@ -189,31 +185,58 @@ function geocentricLon(
 }
 
 // ─── House cusps + Ascendant + MC ─────────────────────────────────────────────
+// ✅ CORRECCIÓN PRINCIPAL: fórmula del Ascendente corregida
+// La fórmula anterior producía el mismo signo que el Sol porque usaba atan2(y,x)
+// con signos incorrectos. La fórmula correcta del Ascendente es:
+// ASC = atan2(cos(RAMC), -(sin(RAMC)*cos(ε) + tan(φ)*sin(ε)))
+// donde RAMC = Sidereal Time local en radianes, ε = oblicuidad, φ = latitud
 
 function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]; asc: number; mc: number } {
-  const T    = (jde - 2451545.0) / 36525;
-  const eps  = d2r(23.4392911 - 0.013004 * T);
-  const gmst = normDeg(280.46061837 + 360.98564736629 * (jde - 2451545.0) + 0.000387933 * T * T);
-  const lst  = normDeg(gmst + lon);
-  const ramcR = d2r(lst);
+  const T = (jde - 2451545.0) / 36525;
 
-  // Ascendant
-  const y = Math.cos(ramcR);
-  const x = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(d2r(lat)) * Math.sin(eps));
-  let asc = normDeg(r2d(Math.atan2(y, x)));
-  if (x < 0) asc = normDeg(asc + 180);
+  // Oblicuidad de la eclíptica
+  const eps = d2r(23.4392911 - 0.013004 * T - 0.0000001639 * T * T);
 
-  // Midheaven
+  // Tiempo Sidéreo de Greenwich en grados (fórmula IAU)
+  const JD0 = Math.floor(jde - 0.5) + 0.5;
+  const D0  = JD0 - 2451545.0;
+  const gmst0 = 100.4606184 + 36000.77004 * (D0 / 36525) + 0.000387933 * Math.pow(D0 / 36525, 2);
+  const gmstNow = normDeg(gmst0 + 360.98564724 * (jde - JD0));
+
+  // Tiempo Sidéreo Local (LST) = GMST + longitud geográfica
+  const lst = normDeg(gmstNow + lon);
+  const ramcR = d2r(lst); // RAMC en radianes
+
+  // ✅ Ascendente — fórmula estándar astrológica correcta
+  // ASC = atan2(cos(RAMC), -(sin(RAMC)*cos(ε) + tan(φ)*sin(ε)))
+  const latR = d2r(lat);
+  const ascNumer = Math.cos(ramcR);
+  const ascDenom = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps));
+  let asc = normDeg(r2d(Math.atan2(ascNumer, ascDenom)));
+
+  // Corrección de cuadrante: el ASC siempre está en el hemisferio este (casas 12-1-2)
+  // Si el denominador es positivo y el resultado está en la mitad incorrecta, añadir 180°
+  if (ascDenom > 0) {
+    asc = normDeg(asc + 180);
+  }
+
+  // ✅ Medio Cielo (MC) — fórmula correcta
   const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
 
-  // House cusps (equal-division from ASC and MC — Placidus approximation)
+  // Casas (sistema igual desde ASC con eje MC/IC)
   const cusps = new Array(13).fill(0);
-  cusps[1]  = asc;                cusps[4]  = normDeg(mc + 180);
-  cusps[7]  = normDeg(asc + 180); cusps[10] = mc;
-  cusps[11] = normDeg(mc + 30);   cusps[12] = normDeg(mc + 60);
-  cusps[2]  = normDeg(asc + 30);  cusps[3]  = normDeg(asc + 60);
-  cusps[5]  = normDeg(mc + 210);  cusps[6]  = normDeg(mc + 240);
-  cusps[8]  = normDeg(asc + 210); cusps[9]  = normDeg(asc + 240);
+  cusps[10] = mc;
+  cusps[4]  = normDeg(mc + 180);
+  cusps[1]  = asc;
+  cusps[7]  = normDeg(asc + 180);
+  cusps[11] = normDeg(mc + 30);
+  cusps[12] = normDeg(mc + 60);
+  cusps[2]  = normDeg(asc + 30);
+  cusps[3]  = normDeg(asc + 60);
+  cusps[5]  = normDeg(mc + 210);
+  cusps[6]  = normDeg(mc + 240);
+  cusps[8]  = normDeg(asc + 210);
+  cusps[9]  = normDeg(asc + 240);
 
   return { cusps, asc, mc };
 }

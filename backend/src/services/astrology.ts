@@ -7,7 +7,10 @@
  */
 
 import tzlookup from 'tz-lookup';
+import { promisify } from 'node:util';
 import { DateTime } from 'luxon';
+
+const tzlookupAsync = promisify(tzlookup as (lat: number, lon: number, cb: (err: Error | null, tz: string) => void) => void);
 import { Planet } from 'astronomia/planetposition';
 import * as solar from 'astronomia/solar';
 import * as moonposition from 'astronomia/moonposition';
@@ -125,12 +128,12 @@ async function geocodeCity(city: string, country: string): Promise<{ lat: number
 
 // ─── Timezone + Julian Day ────────────────────────────────────────────────────
 
-function localToJde(
+async function localToJde(
   dateStr: string, timeStr: string, lat: number, lon: number
-): { jde: number; timezone: string } {
+): Promise<{ jde: number; timezone: string }> {
 
   let timezone = 'UTC';
-  try { timezone = tzlookup(lat, lon) || 'UTC'; } catch { /* use UTC */ }
+  try { timezone = (await tzlookupAsync(lat, lon)) || 'UTC'; } catch { /* use UTC */ }
 
   // Sólo formato 24h — eliminar cualquier sufijo AM/PM por si llega del frontend
   const timeCleaned = timeStr.trim().replace(/\s*(am|pm)$/i, '');
@@ -266,7 +269,7 @@ export async function calculateChart(
 
   // 2. Julian Ephemeris Day
   const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  const { jde, timezone } = localToJde(dateStr, time, lat, lon);
+  const { jde, timezone } = await localToJde(dateStr, time, lat, lon);
   const T = (jde - 2451545.0) / 36525;
 
   // 3. Sol

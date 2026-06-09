@@ -226,10 +226,10 @@ function computeHouses(
 
   // ── Ascendente (ASC) — Meeus eq.14.1 ─────────────────────────────────────
   // tan(ASC) = −cos(θ) / (sin(θ)·cos(ε) + tan(φ)·sin(ε))
-  // Con atan2(y, x) donde y=−cos(RAMC), x=sin(RAMC)·cos(ε)+tan(φ)·sin(ε)
-  // la función maneja todos los cuadrantes directamente; no se necesita corrección.
+  // atan2(cos(θ), −denominador) da el punto que SUBE (horizonte este).
+  // atan2(−cos(θ), +denominador) daría el Descendente (horizonte oeste) — incorrecto.
   const ascX = Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps);
-  const asc  = normDeg(r2d(Math.atan2(-Math.cos(ramcR), ascX)));
+  const asc  = normDeg(r2d(Math.atan2(Math.cos(ramcR), -ascX)));
 
   // ── Cúspides (sistema de casas iguales desde ASC, MC fijo en casa 10) ───
   const cusps = new Array(13).fill(0);

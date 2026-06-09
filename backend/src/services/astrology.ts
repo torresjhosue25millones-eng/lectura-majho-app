@@ -152,7 +152,6 @@ function geocentricLon(
   planetData: any, earthData: any, jde: number
 ): { lon: number; retrograde: boolean } {
 
-  // Extraer el default export si viene envuelto
   const pData = planetData?.default ?? planetData;
   const eData = earthData?.default ?? earthData;
 
@@ -185,11 +184,6 @@ function geocentricLon(
 }
 
 // ─── House cusps + Ascendant + MC ─────────────────────────────────────────────
-// ✅ CORRECCIÓN PRINCIPAL: fórmula del Ascendente corregida
-// La fórmula anterior producía el mismo signo que el Sol porque usaba atan2(y,x)
-// con signos incorrectos. La fórmula correcta del Ascendente es:
-// ASC = atan2(cos(RAMC), -(sin(RAMC)*cos(ε) + tan(φ)*sin(ε)))
-// donde RAMC = Sidereal Time local en radianes, ε = oblicuidad, φ = latitud
 
 function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]; asc: number; mc: number } {
   const T = (jde - 2451545.0) / 36525;
@@ -205,22 +199,22 @@ function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]
 
   // Tiempo Sidéreo Local (LST) = GMST + longitud geográfica
   const lst = normDeg(gmstNow + lon);
-  const ramcR = d2r(lst); // RAMC en radianes
+  const ramcR = d2r(lst);
 
-  // ✅ Ascendente — fórmula estándar astrológica correcta
-  // ASC = atan2(cos(RAMC), -(sin(RAMC)*cos(ε) + tan(φ)*sin(ε)))
+  // ✅ CORRECCIÓN DEL ASCENDENTE
+  // La corrección de cuadrante correcta es: cuando ascDenom < 0 (no > 0)
   const latR = d2r(lat);
   const ascNumer = Math.cos(ramcR);
   const ascDenom = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps));
   let asc = normDeg(r2d(Math.atan2(ascNumer, ascDenom)));
 
-  // Corrección de cuadrante: el ASC siempre está en el hemisferio este (casas 12-1-2)
-  // Si el denominador es positivo y el resultado está en la mitad incorrecta, añadir 180°
-  if (ascDenom > 0) {
+  // Corrección de cuadrante: cuando el denominador es negativo, atan2 devuelve
+  // el ángulo en el cuadrante incorrecto — se corrige sumando 180°
+  if (ascDenom < 0) {
     asc = normDeg(asc + 180);
   }
 
-  // ✅ Medio Cielo (MC) — fórmula correcta
+  // ✅ Medio Cielo (MC)
   const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
 
   // Casas (sistema igual desde ASC con eje MC/IC)

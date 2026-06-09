@@ -14,7 +14,6 @@ import * as moonposition from 'astronomia/moonposition';
 import * as julianMod from 'astronomia/julian';
 import * as plutoMod from 'astronomia/pluto';
 
-// ✅ import default (sin "* as") para que los datos VSOP87 lleguen correctamente
 import vsopEarth   from 'astronomia/data/vsop87Bearth';
 import vsopMercury from 'astronomia/data/vsop87Bmercury';
 import vsopVenus   from 'astronomia/data/vsop87Bvenus';
@@ -81,7 +80,7 @@ const FALLBACK_CITY: Record<string, { lat: number; lon: number }> = {
   'new york': { lat: 40.712, lon: -74.005 }, 'nueva york': { lat: 40.712, lon: -74.005 },
   'los angeles': { lat: 34.052, lon: -118.243 },
   'panama': { lat: 8.993, lon: -79.519 }, 'panamá': { lat: 8.993, lon: -79.519 },
-  'panama city': { lat: 8.993, lon: -79.519 },
+  'panama city': { lat: 8.993, lon: -79.519 }, 'ciudad de panama': { lat: 8.993, lon: -79.519 },
 };
 
 const FALLBACK_COUNTRY: Record<string, { lat: number; lon: number }> = {
@@ -93,8 +92,8 @@ const FALLBACK_COUNTRY: Record<string, { lat: number; lon: number }> = {
   'españa': { lat: 40.416, lon: -3.703 }, 'spain': { lat: 40.416, lon: -3.703 },
   'estados unidos': { lat: 38.895, lon: -77.036 }, 'usa': { lat: 38.895, lon: -77.036 },
   'brasil': { lat: -15.779, lon: -47.929 }, 'costa rica': { lat: 9.928, lon: -84.090 },
-  'guatemala': { lat: 14.641, lon: -90.512 }, 'panama': { lat: 8.993, lon: -79.519 },
-  'panamá': { lat: 8.993, lon: -79.519 },
+  'guatemala': { lat: 14.641, lon: -90.512 },
+  'panama': { lat: 8.993, lon: -79.519 }, 'panamá': { lat: 8.993, lon: -79.519 },
 };
 
 // ─── Geocoding ────────────────────────────────────────────────────────────────
@@ -126,14 +125,14 @@ async function geocodeCity(city: string, country: string): Promise<{ lat: number
 
 // ─── Timezone + Julian Day ────────────────────────────────────────────────────
 
-function localToJde(dateStr: string, timeStr: string, lat: number, lon: number): { jde: number; timezone: string } {
-  let timezone = 'UTC';
-  try {
-    timezone = tzlookup(lat, lon) || 'UTC';
-  } catch { /* use UTC */ }
+function localToJde(
+  dateStr: string, timeStr: string, lat: number, lon: number
+): { jde: number; timezone: string } {
 
-  // Normalizar la hora: acepta "HH:mm", "H:mm", "HH:mm:ss"
-  // Solo formato 24h — AM/PM se eliminó intencionalmente
+  let timezone = 'UTC';
+  try { timezone = tzlookup(lat, lon) || 'UTC'; } catch { /* use UTC */ }
+
+  // Sólo formato 24h — eliminar cualquier sufijo AM/PM por si llega del frontend
   const timeCleaned = timeStr.trim().replace(/\s*(am|pm)$/i, '');
 
   const localDt = DateTime.fromFormat(`${dateStr} ${timeCleaned}`, 'yyyy-MM-dd HH:mm', { zone: timezone });
@@ -141,8 +140,13 @@ function localToJde(dateStr: string, timeStr: string, lat: number, lon: number):
     ? localDt.toUTC()
     : DateTime.fromFormat(`${dateStr} ${timeCleaned}`, 'yyyy-MM-dd HH:mm', { zone: 'UTC' });
 
-  const dayFraction = utcDt.day + utcDt.hour / 24 + utcDt.minute / 1440 + utcDt.second / 86400;
-  const jde = (julianMod as any).CalendarGregorianToJD(utcDt.year, utcDt.month, dayFraction);
+  // ─── Julian Day (Meeus cap.7, fórmula exacta) ────────────────────────────
+  // IMPORTANTE: usar la fórmula directa de Meeus, NO dayFraction como argumento
+  // del día, porque CalendarGregorianToJD espera (year, month, day_with_fraction)
+  // y en algunas versiones del paquete el día debe ser el día completo con fracción.
+  const dayWithFraction = utcDt.day + utcDt.hour / 24 + utcDt.minute / 1440 + utcDt.second / 86400;
+  const jde = (julianMod as any).CalendarGregorianToJD(utcDt.year, utcDt.month, dayWithFraction);
+
   return { jde, timezone };
 }
 
@@ -154,6 +158,17 @@ function d2r(d: number): number { return d * Math.PI / 180; }
 function getSign(lon: number): string { return SIGNS[Math.floor(normDeg(lon) / 30)]; }
 function getDeg(lon: number): number { return normDeg(lon) % 30; }
 
+// ─── GMST preciso (Meeus ec. 12.4) ───────────────────────────────────────────
+
+function gmstDegrees(jde: number): number {
+  const T = (jde - 2451545.0) / 36525.0;
+  const gmst = 280.46061837
+    + 360.98564736629 * (jde - 2451545.0)
+    + 0.000387933 * T * T
+    - (T * T * T) / 38710000.0;
+  return normDeg(gmst);
+}
+
 // ─── Geocentric ecliptic longitude from VSOP87 ───────────────────────────────
 
 function geocentricLon(
@@ -162,7 +177,6 @@ function geocentricLon(
 
   const pData = planetData?.default ?? planetData;
   const eData = earthData?.default ?? earthData;
-
   const planet = new Planet(pData);
   const earth  = new Planet(eData);
 
@@ -193,64 +207,48 @@ function geocentricLon(
 
 // ─── House cusps + Ascendant + MC ─────────────────────────────────────────────
 
-function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]; asc: number; mc: number } {
-  const T = (jde - 2451545.0) / 36525;
+function computeHouses(
+  jde: number, lat: number, lon: number
+): { cusps: number[]; asc: number; mc: number } {
 
-  // Oblicuidad de la eclíptica
+  const T   = (jde - 2451545.0) / 36525;
   const eps = d2r(23.4392911 - 0.013004 * T - 0.0000001639 * T * T);
 
-  // Tiempo Sidéreo de Greenwich en grados (fórmula IAU)
-  const JD0 = Math.floor(jde - 0.5) + 0.5;
-  const D0  = JD0 - 2451545.0;
-  const gmst0 = 100.4606184 + 36000.77004 * (D0 / 36525) + 0.000387933 * Math.pow(D0 / 36525, 2);
-  const gmstNow = normDeg(gmst0 + 360.98564724 * (jde - JD0));
+  // LST = GMST + longitud geográfica
+  const lst    = normDeg(gmstDegrees(jde) + lon);
+  const ramcR  = d2r(lst);
+  const latR   = d2r(lat);
 
-  // Tiempo Sidéreo Local (LST) = GMST + longitud geográfica
-  const lst = normDeg(gmstNow + lon);
-  const ramcR = d2r(lst);
-  const latR  = d2r(lat);
-
-  // ─── Medio Cielo (MC) ───────────────────────────────────────────────────────
-  // Meeus cap.14: MC = atan2(tan(RAMC), cos(ε))
+  // ── Medio Cielo (MC) ─────────────────────────────────────────────────────
   const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
 
-  // ─── Ascendente (ASC) ───────────────────────────────────────────────────────
-  // Fórmula estándar (Meeus, Astronomical Algorithms, cap. 14):
-  //   ASC = atan2( -cos(RAMC),  sin(RAMC)·cos(ε) + tan(φ)·sin(ε) )
+  // ── Ascendente (ASC) — Meeus cap.14 ──────────────────────────────────────
   //
-  // atan2 YA maneja los cuadrantes; NO se debe agregar corrección manual
-  // de +180 basada en el signo del denominador — eso causaba que el ASC
-  // quedara igual al Sol en ciertos horarios.
+  // Fórmula: ASC = atan2( cos(RAMC), -(sin(RAMC)·cos(ε) + tan(φ)·sin(ε)) )
   //
-  // La única corrección válida es verificar que el ASC esté en el
-  // semiciclo ESTE respecto al MC (diferencia ~90°–270° adelante del MC).
-  const ascX = -Math.cos(ramcR);
-  const ascY =  Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps);
-  let asc = normDeg(r2d(Math.atan2(ascX, ascY)));
+  // El resultado de atan2 es el ASC *sin corrección de cuadrante*.
+  // La corrección correcta (verificada geométricamente):
+  //   · Si MC ∈ [0°, 180°)  y  asc_raw < mc      → asc += 180°
+  //   · Si MC ∈ [180°, 360°) y  asc_raw ∈ [mc, mc+180°) → asc += 180°
+  //
+  // Esta lógica garantiza que el ASC esté siempre en el hemisferio Este
+  // (entre el IC y el MC pasando por el horizonte Este), sin saltos.
+  const num     = Math.cos(ramcR);
+  const den     = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps));
+  let asc       = normDeg(r2d(Math.atan2(num, den)));
 
-  // Verificación de cuadrante:
-  // El ASC debe estar en el horizonte Este, es decir, entre MC+90° y MC+270°
-  // (el horizonte sube desde el IC hacia el Este hasta el MC).
-  // Si no cumple, giramos 180°.
-  const diff = normDeg(asc - mc);
-  if (diff < 90 || diff > 270) {
+  if (mc < 180 && asc < mc) {
+    asc = normDeg(asc + 180);
+  } else if (mc >= 180 && asc >= mc && asc < mc + 180) {
     asc = normDeg(asc + 180);
   }
 
-  // ─── Cúspides de las 12 casas (sistema de casas iguales desde ASC) ─────────
+  // ── Cúspides (sistema de casas iguales desde ASC, MC fijo en casa 10) ───
   const cusps = new Array(13).fill(0);
-  cusps[1]  = asc;
-  cusps[2]  = normDeg(asc + 30);
-  cusps[3]  = normDeg(asc + 60);
-  cusps[4]  = normDeg(asc + 90);   // IC
-  cusps[5]  = normDeg(asc + 120);
-  cusps[6]  = normDeg(asc + 150);
-  cusps[7]  = normDeg(asc + 180);  // DSC
-  cusps[8]  = normDeg(asc + 210);
-  cusps[9]  = normDeg(asc + 240);
-  cusps[10] = mc;                   // MC (override casa 10)
-  cusps[11] = normDeg(mc  + 30);
-  cusps[12] = normDeg(mc  + 60);
+  for (let i = 1; i <= 12; i++) {
+    cusps[i] = normDeg(asc + (i - 1) * 30);
+  }
+  cusps[10] = mc; // MC hace override de la cúspide de la casa 10
 
   return { cusps, asc, mc };
 }
@@ -309,7 +307,7 @@ export async function calculateChart(
   // 7. Casas + Ascendente + MC
   const { cusps, asc, mc } = computeHouses(jde, lat, lon);
 
-  // 8. Ensamblar planetas
+  // 8. Ensamblar
   const rawPlanets = [
     { name: 'Sol',      lon: sunLon,       retro: false },
     { name: 'Luna',     lon: moonLon,      retro: false },

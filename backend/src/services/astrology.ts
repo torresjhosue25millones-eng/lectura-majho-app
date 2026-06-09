@@ -219,29 +219,17 @@ function computeHouses(
   const ramcR  = d2r(lst);
   const latR   = d2r(lat);
 
-  // ── Medio Cielo (MC) ─────────────────────────────────────────────────────
-  const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
+  // ── Medio Cielo (MC) — Meeus eq.14.5 ────────────────────────────────────
+  // tan(MC) = sin(θ) / (cos(θ)·cos(ε))
+  // atan2(sin, cos·cosε) maneja los 4 cuadrantes correctamente.
+  const mc = normDeg(r2d(Math.atan2(Math.sin(ramcR), Math.cos(ramcR) * Math.cos(eps))));
 
-  // ── Ascendente (ASC) — Meeus cap.14 ──────────────────────────────────────
-  //
-  // Fórmula: ASC = atan2( cos(RAMC), -(sin(RAMC)·cos(ε) + tan(φ)·sin(ε)) )
-  //
-  // El resultado de atan2 es el ASC *sin corrección de cuadrante*.
-  // La corrección correcta (verificada geométricamente):
-  //   · Si MC ∈ [0°, 180°)  y  asc_raw < mc      → asc += 180°
-  //   · Si MC ∈ [180°, 360°) y  asc_raw ∈ [mc, mc+180°) → asc += 180°
-  //
-  // Esta lógica garantiza que el ASC esté siempre en el hemisferio Este
-  // (entre el IC y el MC pasando por el horizonte Este), sin saltos.
-  const num     = Math.cos(ramcR);
-  const den     = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps));
-  let asc       = normDeg(r2d(Math.atan2(num, den)));
-
-  if (mc < 180 && asc < mc) {
-    asc = normDeg(asc + 180);
-  } else if (mc >= 180 && asc >= mc && asc < mc + 180) {
-    asc = normDeg(asc + 180);
-  }
+  // ── Ascendente (ASC) — Meeus eq.14.1 ─────────────────────────────────────
+  // tan(ASC) = −cos(θ) / (sin(θ)·cos(ε) + tan(φ)·sin(ε))
+  // Con atan2(y, x) donde y=−cos(RAMC), x=sin(RAMC)·cos(ε)+tan(φ)·sin(ε)
+  // la función maneja todos los cuadrantes directamente; no se necesita corrección.
+  const ascX = Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps);
+  const asc  = normDeg(r2d(Math.atan2(-Math.cos(ramcR), ascX)));
 
   // ── Cúspides (sistema de casas iguales desde ASC, MC fijo en casa 10) ───
   const cusps = new Array(13).fill(0);

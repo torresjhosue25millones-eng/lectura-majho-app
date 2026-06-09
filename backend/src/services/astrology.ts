@@ -210,7 +210,7 @@ function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]
 
   // Corrección de cuadrante: cuando el denominador es negativo, atan2 devuelve
   // el ángulo en el cuadrante incorrecto — se corrige sumando 180°
-  if (ascDenom > 0) {  ← este
+  if (ascDenom < 0) {  ← este
     asc = normDeg(asc + 180);
   }
 

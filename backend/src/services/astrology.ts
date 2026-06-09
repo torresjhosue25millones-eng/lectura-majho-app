@@ -327,6 +327,16 @@ export async function calculateChart(
   const ascInfo = { sign: getSign(asc), degree: Math.round(getDeg(asc) * 10) / 10, longitude: asc };
   const mcInfo  = { sign: getSign(mc),  degree: Math.round(getDeg(mc)  * 10) / 10, longitude: mc  };
 
+  console.log(
+    `[CHART] ${city}, ${country} | ${dateStr} ${time}` +
+    ` | Sun=${getSign(sunLon)} ${Math.round(getDeg(sunLon)*10)/10}°` +
+    ` | Moon=${getSign(moonLon)} ${Math.round(getDeg(moonLon)*10)/10}°` +
+    ` | ASC=${ascInfo.sign} ${ascInfo.degree}° (lon=${Math.round(asc*10)/10})` +
+    ` | MC=${mcInfo.sign} ${mcInfo.degree}°` +
+    ` | RAMC=${Math.round(normDeg(gmstDegrees(jde)+lon)*10)/10}°` +
+    ` | lat=${lat.toFixed(3)} lon=${lon.toFixed(3)} tz=${timezone}`
+  );
+
   return {
     planets,
     houses,

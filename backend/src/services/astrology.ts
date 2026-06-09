@@ -14,7 +14,7 @@ import * as moonposition from 'astronomia/moonposition';
 import * as julianMod from 'astronomia/julian';
 import * as plutoMod from 'astronomia/pluto';
 
-// ✅ CORRECCIÓN: import default (sin "* as") para que los datos VSOP87 lleguen correctamente
+// ✅ import default (sin "* as") para que los datos VSOP87 lleguen correctamente
 import vsopEarth   from 'astronomia/data/vsop87Bearth';
 import vsopMercury from 'astronomia/data/vsop87Bmercury';
 import vsopVenus   from 'astronomia/data/vsop87Bvenus';
@@ -80,6 +80,8 @@ const FALLBACK_CITY: Record<string, { lat: number; lon: number }> = {
   'barcelona': { lat: 41.385, lon: 2.173 }, 'miami': { lat: 25.761, lon: -80.191 },
   'new york': { lat: 40.712, lon: -74.005 }, 'nueva york': { lat: 40.712, lon: -74.005 },
   'los angeles': { lat: 34.052, lon: -118.243 },
+  'panama': { lat: 8.993, lon: -79.519 }, 'panamá': { lat: 8.993, lon: -79.519 },
+  'panama city': { lat: 8.993, lon: -79.519 },
 };
 
 const FALLBACK_COUNTRY: Record<string, { lat: number; lon: number }> = {
@@ -92,6 +94,7 @@ const FALLBACK_COUNTRY: Record<string, { lat: number; lon: number }> = {
   'estados unidos': { lat: 38.895, lon: -77.036 }, 'usa': { lat: 38.895, lon: -77.036 },
   'brasil': { lat: -15.779, lon: -47.929 }, 'costa rica': { lat: 9.928, lon: -84.090 },
   'guatemala': { lat: 14.641, lon: -90.512 }, 'panama': { lat: 8.993, lon: -79.519 },
+  'panamá': { lat: 8.993, lon: -79.519 },
 };
 
 // ─── Geocoding ────────────────────────────────────────────────────────────────
@@ -129,9 +132,14 @@ function localToJde(dateStr: string, timeStr: string, lat: number, lon: number):
     timezone = tzlookup(lat, lon) || 'UTC';
   } catch { /* use UTC */ }
 
-  const localDt = DateTime.fromFormat(`${dateStr} ${timeStr}`, 'yyyy-MM-dd HH:mm', { zone: timezone });
-  const utcDt = localDt.isValid ? localDt.toUTC()
-    : DateTime.fromFormat(`${dateStr} ${timeStr}`, 'yyyy-MM-dd HH:mm', { zone: 'UTC' });
+  // Normalizar la hora: acepta "HH:mm", "H:mm", "HH:mm:ss"
+  // Solo formato 24h — AM/PM se eliminó intencionalmente
+  const timeCleaned = timeStr.trim().replace(/\s*(am|pm)$/i, '');
+
+  const localDt = DateTime.fromFormat(`${dateStr} ${timeCleaned}`, 'yyyy-MM-dd HH:mm', { zone: timezone });
+  const utcDt = localDt.isValid
+    ? localDt.toUTC()
+    : DateTime.fromFormat(`${dateStr} ${timeCleaned}`, 'yyyy-MM-dd HH:mm', { zone: 'UTC' });
 
   const dayFraction = utcDt.day + utcDt.hour / 24 + utcDt.minute / 1440 + utcDt.second / 86400;
   const jde = (julianMod as any).CalendarGregorianToJD(utcDt.year, utcDt.month, dayFraction);
@@ -200,37 +208,49 @@ function computeHouses(jde: number, lat: number, lon: number): { cusps: number[]
   // Tiempo Sidéreo Local (LST) = GMST + longitud geográfica
   const lst = normDeg(gmstNow + lon);
   const ramcR = d2r(lst);
+  const latR  = d2r(lat);
 
-  // ✅ CORRECCIÓN DEL ASCENDENTE
-  // La corrección de cuadrante correcta es: cuando ascDenom < 0 (no > 0)
-  const latR = d2r(lat);
-  const ascNumer = Math.cos(ramcR);
-  const ascDenom = -(Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps));
-  let asc = normDeg(r2d(Math.atan2(ascNumer, ascDenom)));
+  // ─── Medio Cielo (MC) ───────────────────────────────────────────────────────
+  // Meeus cap.14: MC = atan2(tan(RAMC), cos(ε))
+  const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
 
-  // Corrección de cuadrante: cuando el denominador es negativo, atan2 devuelve
-  // el ángulo en el cuadrante incorrecto — se corrige sumando 180°
-  if (ascDenom < 0) {
+  // ─── Ascendente (ASC) ───────────────────────────────────────────────────────
+  // Fórmula estándar (Meeus, Astronomical Algorithms, cap. 14):
+  //   ASC = atan2( -cos(RAMC),  sin(RAMC)·cos(ε) + tan(φ)·sin(ε) )
+  //
+  // atan2 YA maneja los cuadrantes; NO se debe agregar corrección manual
+  // de +180 basada en el signo del denominador — eso causaba que el ASC
+  // quedara igual al Sol en ciertos horarios.
+  //
+  // La única corrección válida es verificar que el ASC esté en el
+  // semiciclo ESTE respecto al MC (diferencia ~90°–270° adelante del MC).
+  const ascX = -Math.cos(ramcR);
+  const ascY =  Math.sin(ramcR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps);
+  let asc = normDeg(r2d(Math.atan2(ascX, ascY)));
+
+  // Verificación de cuadrante:
+  // El ASC debe estar en el horizonte Este, es decir, entre MC+90° y MC+270°
+  // (el horizonte sube desde el IC hacia el Este hasta el MC).
+  // Si no cumple, giramos 180°.
+  const diff = normDeg(asc - mc);
+  if (diff < 90 || diff > 270) {
     asc = normDeg(asc + 180);
   }
 
-  // ✅ Medio Cielo (MC)
-  const mc = normDeg(r2d(Math.atan2(Math.tan(ramcR), Math.cos(eps))));
-
-  // Casas (sistema igual desde ASC con eje MC/IC)
+  // ─── Cúspides de las 12 casas (sistema de casas iguales desde ASC) ─────────
   const cusps = new Array(13).fill(0);
-  cusps[10] = mc;
-  cusps[4]  = normDeg(mc + 180);
   cusps[1]  = asc;
-  cusps[7]  = normDeg(asc + 180);
-  cusps[11] = normDeg(mc + 30);
-  cusps[12] = normDeg(mc + 60);
   cusps[2]  = normDeg(asc + 30);
   cusps[3]  = normDeg(asc + 60);
-  cusps[5]  = normDeg(mc + 210);
-  cusps[6]  = normDeg(mc + 240);
+  cusps[4]  = normDeg(asc + 90);   // IC
+  cusps[5]  = normDeg(asc + 120);
+  cusps[6]  = normDeg(asc + 150);
+  cusps[7]  = normDeg(asc + 180);  // DSC
   cusps[8]  = normDeg(asc + 210);
   cusps[9]  = normDeg(asc + 240);
+  cusps[10] = mc;                   // MC (override casa 10)
+  cusps[11] = normDeg(mc  + 30);
+  cusps[12] = normDeg(mc  + 60);
 
   return { cusps, asc, mc };
 }
@@ -289,7 +309,7 @@ export async function calculateChart(
   // 7. Casas + Ascendente + MC
   const { cusps, asc, mc } = computeHouses(jde, lat, lon);
 
-  // 8. Ensamblar
+  // 8. Ensamblar planetas
   const rawPlanets = [
     { name: 'Sol',      lon: sunLon,       retro: false },
     { name: 'Luna',     lon: moonLon,      retro: false },
@@ -319,7 +339,7 @@ export async function calculateChart(
   });
 
   const ascInfo = { sign: getSign(asc), degree: Math.round(getDeg(asc) * 10) / 10, longitude: asc };
-  const mcInfo  = { sign: getSign(mc),  degree: Math.round(getDeg(mc) * 10) / 10,  longitude: mc };
+  const mcInfo  = { sign: getSign(mc),  degree: Math.round(getDeg(mc)  * 10) / 10, longitude: mc  };
 
   return {
     planets,

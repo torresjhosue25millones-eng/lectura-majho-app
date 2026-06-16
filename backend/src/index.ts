@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import readingRoutes from './routes/reading';
+import webhookRoutes from './routes/webhook';
 import { startQueueProcessor } from './services/emailQueue';
 
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json({ limit: '10mb' }));
 
 app.use('/api', readingRoutes);
+app.use('/webhook', webhookRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

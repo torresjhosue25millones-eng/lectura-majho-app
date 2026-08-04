@@ -12,11 +12,19 @@ const INITIAL_FORM: FormData = {
   birthDate: '', birthTime: '', birthCity: '', birthCountry: '',
 };
 
+function getTokenFromUrl(): string {
+  return new URLSearchParams(window.location.search).get('token') || '';
+}
+
 export default function App() {
+  const [token] = useState<string>(getTokenFromUrl);
   const [state, setState] = useState<AppState>({
     formData: INITIAL_FORM,
     answers: [],
-    step: 'form',
+    step: token ? 'form' : 'error',
+    errorMessage: token
+      ? undefined
+      : 'Este enlace no es válido. Si ya compraste tu Lectura Astral MAJHO, revisa el correo que te enviamos con tu link personal.',
   });
 
   const handleFormSubmit = (formData: FormData) => {
@@ -25,7 +33,7 @@ export default function App() {
 
   const handleQuestionsSubmit = async (answers: number[]) => {
     try {
-      await axios.post('/api/reading', { ...state.formData, answers });
+      await axios.post('/api/reading', { ...state.formData, answers, token });
       setState(prev => ({ ...prev, answers, step: 'done' }));
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)
@@ -36,6 +44,7 @@ export default function App() {
   };
 
   const handleRetry = () => {
+    if (!token) return; // sin token válido no hay a dónde reintentar
     setState(prev => ({ ...prev, step: 'form', formData: INITIAL_FORM, answers: [] }));
   };
 

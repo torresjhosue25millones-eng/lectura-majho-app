@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { Resend } from 'resend';
+import { generateFormToken } from '../services/formToken';
 
 const router = Router();
 
@@ -21,12 +22,16 @@ router.post('/hotmart', async (req: Request, res: Response) => {
 
     const buyerEmail = data?.buyer?.email;
     const buyerName  = data?.buyer?.name;
+    const transactionId = data?.purchase?.transaction || data?.transaction || `${buyerEmail}-${Date.now()}`;
 
     if (!buyerEmail) {
       return res.status(400).json({ error: 'Email no encontrado en el payload' });
     }
 
-    const FORM_URL       = process.env.READING_FORM_URL;
+    const formToken = generateFormToken(buyerEmail, transactionId);
+
+    const FORM_URL_BASE  = process.env.READING_FORM_URL;
+    const FORM_URL       = FORM_URL_BASE ? `${FORM_URL_BASE}?token=${formToken}` : undefined;
     const FROM_EMAIL     = process.env.RESEND_FROM_EMAIL || 'majhoholistic@majhogroup.com';
     const FROM_NAME      = process.env.RESEND_FROM_NAME  || 'Método MAJHO';
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
